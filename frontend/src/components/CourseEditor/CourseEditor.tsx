@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { IBlock } from '../BlockEditor/types'
-import BlockEditor from '../BlockEditor/BlockEditor'
+import ModuleBlocksEditor from '../PageEditor/ModuleBlocksEditor'
 import { Chapter, Module, CourseData, EditorMode, EntityType } from './types'
 import { createChapter, createModule, generateSlug, moveItem, createQuizBlock } from './utils'
 import styles from './CourseEditor.module.css'
@@ -536,12 +536,9 @@ const CourseEditor: React.FC<CourseEditorProps> = ({
 
               <div className={styles.field}>
                 <label className={styles.label}>Content Blocks</label>
-                <BlockEditor
-                  moduleId={editingChapterIndex !== null ? `editor-${editingChapterIndex}-${editingModuleIndex ?? 'new'}` : 'editor'}
-                  blocks={moduleBlocks}
-                  onBlocksChange={setModuleBlocks}
-                  previewMode={false}
-                  showHeader={false}
+                <ModuleBlocksEditor
+                  blocks={moduleBlocks as any}
+                  onBlocksChange={blocks => setModuleBlocks(blocks as unknown as IBlock[])}
                 />
               </div>
 

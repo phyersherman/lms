@@ -183,6 +183,26 @@ const TenantDetailPage: React.FC = () => {
             flexWrap: 'wrap'
           }}>
             <Link
+              href={`/admin/tenants/${tenantId}/site`}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 12px',
+                background: router.pathname.includes('/site') ? 'linear-gradient(135deg, #0ea5a4 0%, #0f766e 100%)' : '#f1f5f9',
+                color: router.pathname.includes('/site') ? 'white' : '#334155',
+                textDecoration: 'none',
+                borderRadius: '6px',
+                fontSize: '13px',
+                fontWeight: 600,
+                transition: 'all 0.2s',
+                border: router.pathname.includes('/site') ? 'none' : '1px solid #e2e8f0',
+              }}
+            >
+              <span>🌐</span>
+              <span>Website</span>
+            </Link>
+            <Link
               href={`/admin/tenants/${tenantId}/users`}
               style={{
                 display: 'inline-flex',
