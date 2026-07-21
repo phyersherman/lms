@@ -9,6 +9,7 @@ const NewTenant: React.FC = () => {
   const { user } = useAuth()
   const router = useRouter()
   const [name, setName] = useState('')
+  const [domain, setDomain] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -20,7 +21,11 @@ const NewTenant: React.FC = () => {
     setError('')
     setLoading(true)
     try {
-      const newTenant = await api.createTenant({ name })
+      const host = domain.trim().toLowerCase()
+      const newTenant = await api.createTenant({
+        name,
+        domains: host ? [{ host, isPrimary: true }] : undefined,
+      })
       router.push(`/admin/tenants/${newTenant.id}`)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create tenant')
@@ -67,6 +72,25 @@ const NewTenant: React.FC = () => {
                 }}
               />
               <p style={{ margin: '6px 0 0 0', fontSize: 12, color: '#666' }}>The display name for this tenant/portal</p>
+            </div>
+
+            <div style={{ marginBottom: 24 }}>
+              <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, fontSize: 14, color: '#333' }}>Primary Domain (optional)</label>
+              <input
+                value={domain}
+                onChange={e => setDomain(e.target.value)}
+                placeholder="e.g., www.example.com"
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: 6,
+                  fontSize: 14,
+                  boxSizing: 'border-box',
+                  fontFamily: 'inherit'
+                }}
+              />
+              <p style={{ margin: '6px 0 0 0', fontSize: 12, color: '#666' }}>The domain this site will be served on. You can add more domains later.</p>
             </div>
 
             <div style={{ display: 'flex', gap: 12 }}>

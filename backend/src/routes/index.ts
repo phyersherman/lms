@@ -30,6 +30,11 @@ router.post('/tenants', requireRoleAuth(['admin']), tenantController.createTenan
 router.put('/tenants/:id', requireRoleAuth(['admin']), tenantController.updateTenant)
 router.delete('/tenants/:id', requireRoleAuth(['admin']), tenantController.deleteTenant)
 
+// tenant domain management (admin)
+router.get('/tenants/:id/domains', requireRoleAuth(['admin']), tenantController.listDomains)
+router.post('/tenants/:id/domains', requireRoleAuth(['admin']), tenantController.addDomain)
+router.delete('/tenants/:id/domains/:domainId', requireRoleAuth(['admin']), tenantController.removeDomain)
+
 // user management (admin) - tenant-scoped
 router.get('/tenants/:tenantId/users', requireRoleAuth(['admin']), userController.listUsers)
 router.get('/tenants/:tenantId/users/:userId', requireRoleAuth(['admin']), userController.getUser)

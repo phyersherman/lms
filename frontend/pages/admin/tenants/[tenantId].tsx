@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import AdminLayout from '../../../src/components/AdminLayout'
+import TenantDomainsBranding from '../../../src/components/TenantDomainsBranding'
 import { useAuth } from '../../../src/auth/AuthProvider'
 import api from '../../../src/lib/api'
 import styles from '../../../styles/admin-table.module.css'
@@ -12,6 +13,9 @@ interface Tenant {
   domains: any[]
   defaultLocale: string
   certificateSignature?: string | null
+  primaryColor?: string | null
+  secondaryColor?: string | null
+  logoUrl?: string | null
 }
 
 interface Course {
@@ -157,7 +161,7 @@ const TenantDetailPage: React.FC = () => {
               <p style={{ margin: 0, color: '#666', fontSize: 14 }}>Tenant ID: {tenant.id}</p>
               {tenant.domains && tenant.domains.length > 0 && (
                 <p style={{ margin: '8px 0 0 0', color: '#666', fontSize: 14 }}>
-                  Domain: {tenant.domains[0]?.host || 'Not set'}
+                  {tenant.domains.map((d: any) => d.host).join(', ')}
                 </p>
               )}
             </div>
@@ -393,6 +397,12 @@ const TenantDetailPage: React.FC = () => {
             {error}
           </div>
         )}
+
+        {/* Domains & Branding */}
+        <TenantDomainsBranding
+          tenantId={tenantId as string}
+          initialTheme={{ primaryColor: tenant.primaryColor, secondaryColor: tenant.secondaryColor, logoUrl: tenant.logoUrl }}
+        />
 
         {/* Analytics Section */}
         {analyticsLoading ? (

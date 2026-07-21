@@ -1,4 +1,7 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'
+// Same-origin by default: every site domain serves the frontend and proxies /api
+// to the backend (Next rewrite in dev, Traefik in production). Set
+// NEXT_PUBLIC_API_URL only for legacy cross-origin setups.
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api'
 
 let csrfToken: string | null = null
 
@@ -207,7 +210,7 @@ export async function getTenant(tenantId: string) {
   return fetchJson(`/tenants/${tenantId}`, { method: 'GET' })
 }
 
-export async function createTenant(data: { name: string; domain?: string; theme_config?: any }) {
+export async function createTenant(data: { name: string; theme?: { primaryColor?: string; secondaryColor?: string; logoUrl?: string }; domains?: { host: string; isPrimary?: boolean }[] }) {
   return fetchJson('/tenants', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -215,7 +218,7 @@ export async function createTenant(data: { name: string; domain?: string; theme_
   })
 }
 
-export async function updateTenant(tenantId: string, data: { name?: string; domain?: string; theme_config?: any; certificateSignature?: string | null }) {
+export async function updateTenant(tenantId: string, data: { name?: string; theme?: { primaryColor?: string; secondaryColor?: string; logoUrl?: string }; certificateSignature?: string | null }) {
   return fetchJson(`/tenants/${tenantId}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
@@ -225,6 +228,23 @@ export async function updateTenant(tenantId: string, data: { name?: string; doma
 
 export async function deleteTenant(tenantId: string) {
   return fetchJson(`/tenants/${tenantId}`, { method: 'DELETE' })
+}
+
+// Tenant domain management
+export async function getTenantDomains(tenantId: string) {
+  return fetchJson(`/tenants/${tenantId}/domains`, { method: 'GET' })
+}
+
+export async function addTenantDomain(tenantId: string, host: string, isPrimary = false) {
+  return fetchJson(`/tenants/${tenantId}/domains`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ host, isPrimary }),
+  })
+}
+
+export async function removeTenantDomain(tenantId: string, domainId: string) {
+  return fetchJson(`/tenants/${tenantId}/domains/${domainId}`, { method: 'DELETE' })
 }
 
 // User management
@@ -817,6 +837,9 @@ export default {
   createTenant,
   updateTenant,
   deleteTenant,
+  getTenantDomains,
+  addTenantDomain,
+  removeTenantDomain,
   // User management
   getUsers,
   getUser,

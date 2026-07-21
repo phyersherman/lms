@@ -13,19 +13,21 @@ app.use(helmet())
 app.use(express.json())
 app.use(morgan('dev'))
 
-// CORS: allow one or more frontend origins (configurable)
-// Set FRONTEND_ORIGINS to a comma-separated list like: http://localhost:3000,http://127.0.0.1:3000
-const FRONTEND_ORIGINS = (process.env.FRONTEND_ORIGINS || 'http://localhost:3000').split(',').map(s => s.trim())
-app.use(cors({
-  origin: (origin, callback) => {
-    // allow requests with no origin (e.g., curl, mobile clients)
-    if (!origin) return callback(null, true)
-    if (FRONTEND_ORIGINS.includes(origin)) return callback(null, true)
-    return callback(new Error('Not allowed by CORS'))
-  },
-  credentials: true
-}))
-console.log('Allowed frontend origins:', FRONTEND_ORIGINS)
+// The app is served same-origin on every site domain (Next rewrite in dev,
+// Traefik path routing in production), so CORS headers are not needed. Legacy
+// cross-origin deployments can still opt in by setting FRONTEND_ORIGINS.
+if (process.env.FRONTEND_ORIGINS) {
+  const FRONTEND_ORIGINS = process.env.FRONTEND_ORIGINS.split(',').map(s => s.trim())
+  app.use(cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true)
+      if (FRONTEND_ORIGINS.includes(origin)) return callback(null, true)
+      return callback(new Error('Not allowed by CORS'))
+    },
+    credentials: true
+  }))
+  console.log('Allowed frontend origins:', FRONTEND_ORIGINS)
+}
 app.use(cookieParser())
 
 // CSRF protection using double-submit cookie via `csurf`.
