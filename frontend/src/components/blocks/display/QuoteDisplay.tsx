@@ -1,5 +1,6 @@
 import React from 'react'
 import { BlockNode, parseConfig } from '../types'
+import { useBlockFrame } from '../frame'
 import InlineText from '../../PageEditor/InlineText'
 import type { EditableProps } from './HeroDisplay'
 
@@ -19,6 +20,7 @@ export const DEFAULT_QUOTE_CONFIG: QuoteConfig = {
 
 const QuoteDisplay: React.FC<{ block: BlockNode; editable?: EditableProps }> = ({ block, editable }) => {
   const config = parseConfig(block, DEFAULT_QUOTE_CONFIG)
+  const { fillH } = useBlockFrame()
   return (
     <blockquote
       style={{
@@ -30,6 +32,12 @@ const QuoteDisplay: React.FC<{ block: BlockNode; editable?: EditableProps }> = (
         borderRadius: 4,
         fontStyle: 'italic',
         lineHeight: 1.8,
+        // filled: the panel is the container; center the quote vertically
+        height: fillH ? '100%' : undefined,
+        boxSizing: 'border-box',
+        display: fillH ? 'flex' : undefined,
+        flexDirection: 'column',
+        justifyContent: 'center',
       }}
     >
       <p style={{ fontSize: 18, margin: config.attribution || editable ? '0 0 16px 0' : 0 }}>

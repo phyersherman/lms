@@ -1,6 +1,7 @@
 import React from 'react'
 import { PageContent, PageSection, GRID_COLUMNS, GRID_ROW_HEIGHT } from './types'
 import BlockDisplay from './BlockDisplay'
+import { FrameBox } from './frame'
 import { BlockRenderContext } from './registry'
 
 const SECTION_PADDING = { none: '0', small: '24px 0', medium: '48px 0', large: '96px 0' } as const
@@ -36,10 +37,11 @@ export const GridSectionBody: React.FC<{ section: PageSection; context?: BlockRe
               order: p.y * (GRID_COLUMNS + 1) + p.x, // mobile stacking order
               zIndex: i + 1,
               minWidth: 0,
-              padding: 6,
             }}
           >
-            <BlockDisplay block={block} context={context} />
+            <FrameBox block={block}>
+              <BlockDisplay block={block} context={context} />
+            </FrameBox>
           </div>
         )
       })}

@@ -1,5 +1,6 @@
 import React from 'react'
 import { BlockNode, parseConfig } from '../types'
+import { useBlockFrame } from '../frame'
 import InlineText from '../../PageEditor/InlineText'
 import type { EditableProps } from './HeroDisplay'
 
@@ -26,19 +27,26 @@ const SIZE_PADDING = { small: '8px 16px', medium: '12px 24px', large: '16px 32px
 
 const ButtonDisplay: React.FC<{ block: BlockNode; editable?: EditableProps }> = ({ block, editable }) => {
   const config = parseConfig(block, DEFAULT_BUTTON_CONFIG)
+  const { fillW, fillH } = useBlockFrame()
   const size = config.size || 'medium'
   const style: React.CSSProperties = {
-    display: 'inline-block',
+    display: fillW || fillH ? 'flex' : 'inline-block',
+    alignItems: 'center',
+    justifyContent: 'center',
+    // when the frame stretches the button, the container IS the button
+    width: fillW ? '100%' : undefined,
+    height: fillH ? '100%' : undefined,
+    boxSizing: 'border-box',
     backgroundColor: config.backgroundColor,
     color: config.textColor,
-    padding: SIZE_PADDING[size],
+    padding: fillW && fillH ? '4px 12px' : SIZE_PADDING[size],
     fontSize: SIZE_FONT[size],
     borderRadius: 6,
     fontWeight: 600,
     textDecoration: 'none',
   }
   return (
-    <div style={{ textAlign: config.alignment || 'left' }}>
+    <div style={{ textAlign: config.alignment || 'left', width: fillW ? '100%' : undefined, height: fillH ? '100%' : undefined }}>
       {editable ? (
         // span in the editor so clicking edits the label instead of navigating
         <span style={style}>

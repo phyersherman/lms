@@ -50,6 +50,44 @@ export interface PageContent {
   sections: PageSection[]
 }
 
+// How a block's content sits inside its grid container. Stored in the block
+// config under the reserved `_frame` key. 'stretch' makes the content fill
+// the container on that axis (so resizing the container resizes the content).
+export interface BlockFrame {
+  hAlign: 'start' | 'center' | 'end' | 'stretch'
+  vAlign: 'start' | 'center' | 'end' | 'stretch'
+  padding: number // px inside the container
+  fillText?: boolean // text blocks: scale the type to fill the container
+}
+
+// Visual blocks fill their container by default — the container IS the
+// element. Text flows naturally from the top-left at its set font size.
+export const FRAME_DEFAULTS: Record<string, BlockFrame> = {
+  text: { hAlign: 'stretch', vAlign: 'start', padding: 6 },
+  hero: { hAlign: 'stretch', vAlign: 'stretch', padding: 0 },
+  image: { hAlign: 'stretch', vAlign: 'stretch', padding: 0 },
+  video: { hAlign: 'stretch', vAlign: 'stretch', padding: 0 },
+  quote: { hAlign: 'stretch', vAlign: 'stretch', padding: 0 },
+  button: { hAlign: 'stretch', vAlign: 'stretch', padding: 6 },
+  divider: { hAlign: 'stretch', vAlign: 'center', padding: 0 },
+  spacer: { hAlign: 'stretch', vAlign: 'stretch', padding: 0 },
+  form: { hAlign: 'stretch', vAlign: 'start', padding: 6 },
+  product: { hAlign: 'stretch', vAlign: 'start', padding: 6 },
+  blogListing: { hAlign: 'stretch', vAlign: 'start', padding: 6 },
+  quiz: { hAlign: 'stretch', vAlign: 'start', padding: 6 },
+}
+
+export function parseFrame(block: BlockNode): BlockFrame {
+  const defaults = FRAME_DEFAULTS[block.type] || { hAlign: 'stretch', vAlign: 'start', padding: 6 }
+  if (!block.config) return { ...defaults }
+  try {
+    const parsed = JSON.parse(block.config)
+    return { ...defaults, ...(parsed._frame || {}) }
+  } catch {
+    return { ...defaults }
+  }
+}
+
 export function parseConfig<T extends object>(block: BlockNode, defaults: T): T {
   if (!block.config) return { ...defaults }
   try {

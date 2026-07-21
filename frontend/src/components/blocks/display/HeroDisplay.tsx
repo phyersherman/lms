@@ -1,5 +1,6 @@
 import React from 'react'
 import { BlockNode, parseConfig } from '../types'
+import { useBlockFrame } from '../frame'
 import InlineText from '../../PageEditor/InlineText'
 
 export interface EditableProps {
@@ -37,12 +38,20 @@ const HEIGHT_PADDING = { small: '48px 24px', medium: '88px 24px', large: '140px 
 // kicker and subheading click-to-edit in place.
 const HeroDisplay: React.FC<{ block: BlockNode; editable?: EditableProps }> = ({ block, editable }) => {
   const config = parseConfig(block, DEFAULT_HERO_CONFIG)
+  const { fillH } = useBlockFrame()
   const align = config.alignment || 'center'
   const hasImage = !!config.backgroundImageUrl
   return (
     <div
       style={{
         position: 'relative',
+        // when the frame stretches the hero, its height tracks the container
+        // (resize handles) instead of the small/medium/large preset
+        height: fillH ? '100%' : undefined,
+        display: fillH ? 'flex' : undefined,
+        flexDirection: 'column',
+        justifyContent: 'center',
+        boxSizing: 'border-box',
         backgroundColor: config.backgroundColor,
         backgroundImage: hasImage ? `url(${config.backgroundImageUrl})` : undefined,
         backgroundSize: 'cover',
@@ -57,11 +66,13 @@ const HeroDisplay: React.FC<{ block: BlockNode; editable?: EditableProps }> = ({
       <div
         style={{
           position: 'relative',
-          padding: HEIGHT_PADDING[config.height || 'medium'],
+          padding: fillH ? '24px' : HEIGHT_PADDING[config.height || 'medium'],
           textAlign: align,
           color: config.textColor,
           maxWidth: 900,
           margin: '0 auto',
+          width: fillH ? '100%' : undefined,
+          boxSizing: 'border-box',
         }}
       >
         {(config.kicker || editable) && (

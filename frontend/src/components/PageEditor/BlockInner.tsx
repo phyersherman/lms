@@ -1,7 +1,8 @@
 import React from 'react'
-import { BlockNode } from '../blocks/types'
+import { BlockNode, parseFrame } from '../blocks/types'
 import { BlockRenderContext } from '../blocks/registry'
 import BlockDisplay from '../blocks/BlockDisplay'
+import TextDisplay from '../blocks/display/TextDisplay'
 import HeroDisplay from '../blocks/display/HeroDisplay'
 import ButtonDisplay from '../blocks/display/ButtonDisplay'
 import QuoteDisplay from '../blocks/display/QuoteDisplay'
@@ -41,6 +42,10 @@ const BlockInner: React.FC<Props> = ({ block, selected, context, dispatch }) => 
 
   switch (block.type) {
     case 'text':
+      // "scale to fill" text shows its fitted size until selected for editing
+      if (parseFrame(block).fillText && !selected) {
+        return <TextDisplay block={block} />
+      }
       return (
         <TextInlineEditor
           block={block}

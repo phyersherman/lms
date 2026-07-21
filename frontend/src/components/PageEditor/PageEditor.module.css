@@ -465,7 +465,9 @@
   position: relative;
   border: 1px solid transparent;
   border-radius: 6px;
-  padding: 6px;
+  /* inner padding comes from the block's frame settings (parity with the
+     public renderer) */
+  padding: 0;
   cursor: grab;
 }
 

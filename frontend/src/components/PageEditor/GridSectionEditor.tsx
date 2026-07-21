@@ -1,5 +1,6 @@
 import React, { useRef, useState, useCallback } from 'react'
 import { BlockNode, GridPlacement, PageSection, GRID_COLUMNS, GRID_ROW_HEIGHT } from '../blocks/types'
+import { FrameBox } from '../blocks/frame'
 import { BLOCK_REGISTRY, BlockRenderContext } from '../blocks/registry'
 import BlockInner from './BlockInner'
 import { DraftDispatch, Selection } from './usePageDraft'
@@ -178,7 +179,9 @@ const GridSectionEditor: React.FC<Props> = ({ section, selection, context, dispa
             </div>
 
             <div className={styles.gridBlockContent}>
-              <BlockInner block={block} selected={!!selected} context={context} dispatch={dispatch} />
+              <FrameBox block={block}>
+                <BlockInner block={block} selected={!!selected} context={context} dispatch={dispatch} />
+              </FrameBox>
             </div>
 
             {/* resize handles */}

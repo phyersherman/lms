@@ -10,7 +10,7 @@ export const DEFAULT_GRID_SIZES: Record<string, { w: number; h: number }> = {
   image: { w: 10, h: 8 },
   video: { w: 14, h: 9 },
   quote: { w: 12, h: 4 },
-  button: { w: 6, h: 2 },
+  button: { w: 4, h: 2 },
   divider: { w: 24, h: 1 },
   spacer: { w: 24, h: 2 },
   form: { w: 12, h: 12 },

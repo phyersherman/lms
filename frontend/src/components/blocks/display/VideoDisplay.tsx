@@ -1,5 +1,6 @@
 import React from 'react'
 import { BlockNode, parseConfig } from '../types'
+import { useBlockFrame } from '../frame'
 
 export interface VideoConfig {
   title?: string
@@ -33,22 +34,25 @@ export function toEmbedUrl(url: string): string | null {
 
 const VideoDisplay: React.FC<{ block: BlockNode }> = ({ block }) => {
   const config = parseConfig(block, DEFAULT_VIDEO_CONFIG)
+  const { fillW, fillH } = useBlockFrame()
+  const fills = fillW && fillH
   const embedUrl = block.content ? toEmbedUrl(block.content) : null
   const paddingTop = config.aspectRatio === '4:3' ? '75%' : '56.25%'
 
   if (!block.content) {
     return (
-      <div style={{ padding: '60px 20px', backgroundColor: '#f0f0f0', borderRadius: 8, color: '#999', fontStyle: 'italic', textAlign: 'center' }}>
+      <div style={{ padding: fills ? 0 : '60px 20px', height: fills ? '100%' : undefined, display: fills ? 'flex' : undefined, alignItems: 'center', justifyContent: 'center', backgroundColor: '#f0f0f0', borderRadius: 8, color: '#999', fontStyle: 'italic', textAlign: 'center', boxSizing: 'border-box' }}>
         No video URL set
       </div>
     )
   }
 
   return (
-    <div>
+    <div style={fills ? { height: '100%', display: 'flex', flexDirection: 'column' } : undefined}>
       {config.title && <h4 style={{ marginTop: 0, marginBottom: 12 }}>{config.title}</h4>}
       {embedUrl ? (
-        <div style={{ position: 'relative', paddingTop, borderRadius: 8, overflow: 'hidden' }}>
+        // filling: the player tracks the container instead of a fixed aspect box
+        <div style={fills ? { position: 'relative', flex: 1, minHeight: 0, borderRadius: 8, overflow: 'hidden' } : { position: 'relative', paddingTop, borderRadius: 8, overflow: 'hidden' }}>
           <iframe
             src={embedUrl}
             title={config.title || 'Video'}
@@ -59,7 +63,7 @@ const VideoDisplay: React.FC<{ block: BlockNode }> = ({ block }) => {
           />
         </div>
       ) : (
-        <video controls style={{ width: '100%', maxHeight: 480, borderRadius: 8, backgroundColor: '#000' }}>
+        <video controls style={fills ? { width: '100%', flex: 1, minHeight: 0, objectFit: 'contain', borderRadius: 8, backgroundColor: '#000' } : { width: '100%', maxHeight: 480, borderRadius: 8, backgroundColor: '#000' }}>
           <source src={block.content} />
           Your browser does not support the video tag.
         </video>

@@ -120,6 +120,13 @@ string** (stringify it).
 | `product`     | —                      | `{ "productKey": "book-preorder", buttonLabel }`                                         |
 | `blogListing` | —                      | `{ heading, limit }`                                                                     |
 
+**Content framing (grid sections):** every block config may include a reserved
+`_frame` object controlling how the content sits inside its grid container:
+`{ "hAlign": "stretch|start|center|end", "vAlign": "stretch|start|center|end", "padding": 6, "fillText": false }`.
+`stretch` (the default for visual blocks like hero/image/video/button/quote)
+makes the element itself fill the container, so resizing the container resizes
+the element. Text keeps its font size unless `fillText` is true.
+
 **Cross-references:** form and product blocks reference package entries by
 `formKey` / `productKey`; the importer resolves them to database ids (and the
 exporter converts ids back to keys). Keys of forms/products already imported in

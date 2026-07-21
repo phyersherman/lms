@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import api from '../../lib/api'
-import { BlockNode, PageContent, PageSection } from '../blocks/types'
+import { BlockNode, PageContent, PageSection, parseFrame } from '../blocks/types'
 import { BLOCK_REGISTRY } from '../blocks/registry'
 import { BLOCK_INSPECTORS, COLUMN_LAYOUTS, FieldDef } from './inspectorSchema'
 import { DraftDispatch, Selection } from './usePageDraft'
@@ -235,6 +235,60 @@ const BlockInspector: React.FC<{ block: BlockNode; dispatch: DraftDispatch; tena
       {(schema?.fields || []).map(f => (
         <Field key={f.key} def={f} value={config[f.key]} onChange={v => patchConfig({ [f.key]: v })} />
       ))}
+
+      {block.placement && (() => {
+        const frame = parseFrame(block)
+        const patchFrame = (patch: object) => patchConfig({ _frame: { ...frame, ...patch } })
+        return (
+          <>
+            <div className={styles.inspectorField}>
+              <label>Content in container</label>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+                <select value={frame.hAlign} onChange={e => patchFrame({ hAlign: e.target.value })} title="Horizontal">
+                  <option value="stretch">Fill width</option>
+                  <option value="start">Left</option>
+                  <option value="center">Center</option>
+                  <option value="end">Right</option>
+                </select>
+                <select value={frame.vAlign} onChange={e => patchFrame({ vAlign: e.target.value })} title="Vertical">
+                  <option value="stretch">Fill height</option>
+                  <option value="start">Top</option>
+                  <option value="center">Middle</option>
+                  <option value="end">Bottom</option>
+                </select>
+              </div>
+              <p className={styles.fieldHelp}>
+                &quot;Fill&quot; makes the element grow with its container — the resize handles then size the element itself.
+              </p>
+            </div>
+            <Field
+              def={{ key: '_padding', label: 'Inner padding (px)', input: 'number', min: 0, max: 120 }}
+              value={frame.padding}
+              onChange={v => patchFrame({ padding: Number(v) || 0 })}
+            />
+            {block.type === 'text' && (
+              <label className={styles.inspectorCheckbox}>
+                <input
+                  type="checkbox"
+                  checked={!!frame.fillText}
+                  onChange={e => patchFrame({ fillText: e.target.checked, ...(e.target.checked ? { vAlign: 'stretch', hAlign: 'stretch' } : {}) })}
+                />
+                Scale text to fill the box
+              </label>
+            )}
+            {block.type === 'image' && frame.hAlign === 'stretch' && frame.vAlign === 'stretch' && (
+              <Field
+                def={{ key: 'objectFit', label: 'Image fill mode', input: 'select', options: [
+                  { value: 'cover', label: 'Cover (crop to fill)' },
+                  { value: 'contain', label: 'Contain (fit inside)' },
+                ] }}
+                value={config.objectFit || 'cover'}
+                onChange={v => patchConfig({ objectFit: v })}
+              />
+            )}
+          </>
+        )
+      })()}
 
       {block.placement && (
         <div className={styles.inspectorField}>
