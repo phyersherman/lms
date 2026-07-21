@@ -5,6 +5,7 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import routes from './routes'
 import { tenantResolver } from './middleware/tenantResolver'
+import { syncDomains } from './services/domainSyncService'
 import csurf from 'csurf'
 
 const app = express()
@@ -62,4 +63,6 @@ app.use('/api', routes)
 const PORT = process.env.PORT || 4000
 app.listen(PORT, () => {
   console.log(`LMS backend listening on port ${PORT}`)
+  // regenerate Traefik routes for customer domains on boot (no-op in dev)
+  void syncDomains()
 })

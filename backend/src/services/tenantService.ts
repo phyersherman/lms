@@ -1,5 +1,6 @@
 import { Tenant } from '../models/entities'
 import prisma from '../db/client'
+import { syncDomains } from './domainSyncService'
 
 // If DATABASE_URL is not provided or Prisma not set up yet, fall back to in-memory
 const _tenants: Tenant[] = [
@@ -61,6 +62,7 @@ const create = async (data: { name: string; defaultLocale?: string; theme?: any;
     },
     include: { domains: true }
   })
+  if (domainData.length > 0) void syncDomains()
   return tenant as unknown as Tenant
 }
 
@@ -105,6 +107,7 @@ const update = async (id: string, data: { name?: string; defaultLocale?: string;
         await prisma.domain.update({ where: { id: found.id }, data: { isPrimary: d.isPrimary } })
       }
     }
+    void syncDomains()
     return getById(id)
   }
 
@@ -130,7 +133,9 @@ const addDomain = async (tenantId: string, host: string, isPrimary = false) => {
   if (isPrimary) {
     await prisma.domain.updateMany({ where: { tenantId }, data: { isPrimary: false } })
   }
-  return prisma.domain.create({ data: { host: normalized, isPrimary, tenantId } })
+  const domain = await prisma.domain.create({ data: { host: normalized, isPrimary, tenantId } })
+  void syncDomains()
+  return domain
 }
 
 const removeDomain = async (tenantId: string, domainId: string) => {
@@ -145,6 +150,7 @@ const removeDomain = async (tenantId: string, domainId: string) => {
   const domain = await prisma.domain.findUnique({ where: { id: domainId } })
   if (!domain || domain.tenantId !== tenantId) return false
   await prisma.domain.delete({ where: { id: domainId } })
+  void syncDomains()
   return true
 }
 
