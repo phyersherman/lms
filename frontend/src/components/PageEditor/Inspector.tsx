@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import api from '../../lib/api'
 import { BlockNode, PageContent, PageSection } from '../blocks/types'
 import { BLOCK_REGISTRY } from '../blocks/registry'
 import { BLOCK_INSPECTORS, COLUMN_LAYOUTS, FieldDef } from './inspectorSchema'
@@ -10,6 +11,7 @@ interface Props {
   content: PageContent
   selection: Selection
   dispatch: DraftDispatch
+  tenantId?: string
 }
 
 const parseConfig = (block: BlockNode): Record<string, any> => {
@@ -120,7 +122,32 @@ const HeroButtonsEditor: React.FC<{ block: BlockNode; onConfig: (patch: object) 
   )
 }
 
-const BlockInspector: React.FC<{ block: BlockNode; dispatch: DraftDispatch }> = ({ block, dispatch }) => {
+// Dropdown of the tenant's forms for the form block
+const FormPicker: React.FC<{ value?: string; tenantId?: string; onChange: (formId: string) => void }> = ({ value, tenantId, onChange }) => {
+  const [forms, setForms] = useState<{ id: string; name: string }[]>([])
+  useEffect(() => {
+    if (!tenantId) return
+    api.getForms(tenantId).then((list: any) => setForms(Array.isArray(list) ? list : [])).catch(() => setForms([]))
+  }, [tenantId])
+  return (
+    <div className={styles.inspectorField}>
+      <label>Form</label>
+      <select value={value || ''} onChange={e => onChange(e.target.value)}>
+        <option value="">— Choose a form —</option>
+        {forms.map(f => (
+          <option key={f.id} value={f.id}>{f.name}</option>
+        ))}
+      </select>
+      {tenantId && (
+        <p className={styles.fieldHelp}>
+          Manage forms under the tenant&apos;s Website → Forms page.
+        </p>
+      )}
+    </div>
+  )
+}
+
+const BlockInspector: React.FC<{ block: BlockNode; dispatch: DraftDispatch; tenantId?: string }> = ({ block, dispatch, tenantId }) => {
   const def = BLOCK_REGISTRY[block.type]
   const schema = BLOCK_INSPECTORS[block.type]
   const config = parseConfig(block)
@@ -175,6 +202,10 @@ const BlockInspector: React.FC<{ block: BlockNode; dispatch: DraftDispatch }> = 
 
       {block.type === 'text' && (
         <p className={styles.fieldHelp}>Edit text directly in the canvas. Select the block and start typing.</p>
+      )}
+
+      {block.type === 'form' && (
+        <FormPicker value={config.formId} tenantId={tenantId} onChange={formId => patchConfig({ formId })} />
       )}
 
       {(schema?.fields || []).map(f => (
@@ -249,7 +280,7 @@ const SectionInspector: React.FC<{ section: PageSection; dispatch: DraftDispatch
   )
 }
 
-const Inspector: React.FC<Props> = ({ content, selection, dispatch }) => {
+const Inspector: React.FC<Props> = ({ content, selection, dispatch, tenantId }) => {
   let body: React.ReactNode = (
     <p className={styles.inspectorEmpty}>Select a block or section to edit its settings.</p>
   )
@@ -258,7 +289,7 @@ const Inspector: React.FC<Props> = ({ content, selection, dispatch }) => {
     for (const s of content.sections) {
       for (const c of s.columns) {
         const block = c.blocks.find(b => b.id === selection.id)
-        if (block) body = <BlockInspector block={block} dispatch={dispatch} />
+        if (block) body = <BlockInspector block={block} dispatch={dispatch} tenantId={tenantId} />
       }
     }
   } else if (selection?.kind === 'section') {

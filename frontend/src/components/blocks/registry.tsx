@@ -8,6 +8,7 @@ import ButtonDisplay, { DEFAULT_BUTTON_CONFIG } from './display/ButtonDisplay'
 import HeroDisplay, { DEFAULT_HERO_CONFIG } from './display/HeroDisplay'
 import SpacerDisplay, { DEFAULT_SPACER_CONFIG } from './display/SpacerDisplay'
 import DividerDisplay, { DEFAULT_DIVIDER_CONFIG } from './display/DividerDisplay'
+import FormDisplay, { DEFAULT_FORM_CONFIG } from './display/FormDisplay'
 import QuizBlockDisplay from '../BlockEditor/blocks/QuizBlockDisplay'
 
 export interface BlockRenderContext {
@@ -85,6 +86,13 @@ export const BLOCK_REGISTRY: Record<string, BlockDefinition> = {
     surfaces: ['site'],
     defaults: { config: DEFAULT_DIVIDER_CONFIG },
     Display: DividerDisplay,
+  },
+  form: {
+    label: 'Form',
+    icon: '📋',
+    surfaces: ['site'],
+    defaults: { config: DEFAULT_FORM_CONFIG },
+    Display: FormDisplay,
   },
   quiz: {
     label: 'Quiz',

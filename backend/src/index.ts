@@ -6,6 +6,7 @@ import cookieParser from 'cookie-parser'
 import routes from './routes'
 import { tenantResolver } from './middleware/tenantResolver'
 import { syncDomains } from './services/domainSyncService'
+import { UPLOADS_DIR } from './services/storageService'
 import csurf from 'csurf'
 
 const app = express()
@@ -57,6 +58,9 @@ app.set('trust proxy', 1)
 
 // multi-tenant resolver middleware: sets req.tenantId
 app.use(tenantResolver)
+
+// public uploaded assets (images, etc.) — long cache, filenames are random
+app.use('/api/uploads', express.static(UPLOADS_DIR, { maxAge: '7d', index: false }))
 
 app.use('/api', routes)
 

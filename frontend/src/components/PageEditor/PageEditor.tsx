@@ -25,9 +25,10 @@ interface Props {
   headerLeft?: React.ReactNode // back link / page title area
   headerRight?: React.ReactNode // extra actions (settings, etc.)
   publishedAt?: string | null
+  tenantId?: string // enables tenant-scoped pickers (forms, assets) in the inspector
 }
 
-const PageEditor: React.FC<Props> = ({ initialContent, onSaveDraft, onPublish, headerLeft, headerRight, publishedAt }) => {
+const PageEditor: React.FC<Props> = ({ initialContent, onSaveDraft, onPublish, headerLeft, headerRight, publishedAt, tenantId }) => {
   const { state, dispatch } = usePageDraft(initialContent)
   const [device, setDevice] = useState<DeviceMode>('desktop')
   const [saveState, setSaveState] = useState<'saved' | 'saving' | 'dirty' | 'error'>('saved')
@@ -209,7 +210,7 @@ const PageEditor: React.FC<Props> = ({ initialContent, onSaveDraft, onPublish, h
           </div>
         </div>
 
-        <Inspector content={state.content} selection={state.selection} dispatch={dispatch} />
+        <Inspector content={state.content} selection={state.selection} dispatch={dispatch} tenantId={tenantId} />
       </div>
     </div>
   )

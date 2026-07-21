@@ -14,7 +14,13 @@ import requireAuth from '../middleware/authGuard'
 import { requireAuth as requireRoleAuth } from '../middleware/authGuard'
 import requireFeature from '../middleware/requireFeature'
 import siteController from '../controllers/siteController'
-import { authLimiter, inviteLimiter } from '../middleware/rateLimiters'
+import { authLimiter, inviteLimiter, formSubmitLimiter } from '../middleware/rateLimiters'
+import multer from 'multer'
+import assetController from '../controllers/assetController'
+import formController from '../controllers/formController'
+import { MAX_UPLOAD_BYTES } from '../services/storageService'
+
+const uploadMiddleware = multer({ storage: multer.memoryStorage(), limits: { fileSize: MAX_UPLOAD_BYTES } })
 import courseController from '../controllers/courseController'
 import courseTemplateController from '../controllers/courseTemplateController'
 import quizController from '../controllers/quiz-controller'
@@ -48,6 +54,26 @@ router.delete('/pages/:pageId', requireRoleAuth(['admin']), siteController.delet
 
 // website builder: public site + page resolution (no auth)
 router.get('/public/site-page', siteController.getPublicSitePage)
+
+// website builder: assets (admin)
+router.post('/tenants/:tenantId/assets', requireRoleAuth(['admin']), uploadMiddleware.single('file'), assetController.upload)
+router.get('/tenants/:tenantId/assets', requireRoleAuth(['admin']), assetController.list)
+router.delete('/tenants/:tenantId/assets/:assetId', requireRoleAuth(['admin']), assetController.remove)
+
+// website builder: forms + contacts (admin)
+router.get('/tenants/:tenantId/forms', requireRoleAuth(['admin']), formController.listForms)
+router.post('/tenants/:tenantId/forms', requireRoleAuth(['admin']), formController.createForm)
+router.get('/forms/:formId', requireRoleAuth(['admin']), formController.getForm)
+router.put('/forms/:formId', requireRoleAuth(['admin']), formController.updateForm)
+router.delete('/forms/:formId', requireRoleAuth(['admin']), formController.deleteForm)
+router.get('/forms/:formId/submissions', requireRoleAuth(['admin']), formController.listSubmissions)
+router.get('/tenants/:tenantId/contacts', requireRoleAuth(['admin']), formController.listContacts)
+router.delete('/tenants/:tenantId/contacts/:contactId', requireRoleAuth(['admin']), formController.deleteContact)
+
+// website builder: public form endpoints (no auth; CSRF exempt under /public/)
+router.get('/public/forms/:formId', formController.getPublicForm)
+router.post('/public/forms/:formId/submissions', formSubmitLimiter, formController.submitForm)
+router.get('/public/downloads/:token', formController.download)
 
 // tenant management (admin)
 router.get('/tenants', requireRoleAuth(['admin']), tenantController.listTenants)

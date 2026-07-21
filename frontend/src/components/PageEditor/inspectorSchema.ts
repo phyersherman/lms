@@ -100,6 +100,18 @@ export const BLOCK_INSPECTORS: Record<string, BlockInspectorSchema> = {
       { key: 'openInNewTab', label: 'Open in new tab', input: 'checkbox' },
     ],
   },
+  form: {
+    fields: [
+      { key: 'submitLabel', label: 'Submit button label', input: 'text' },
+      {
+        key: 'align', label: 'Layout', input: 'select',
+        options: [
+          { value: 'left', label: 'Full width' },
+          { value: 'center', label: 'Centered (narrow)' },
+        ],
+      },
+    ],
+  },
   spacer: {
     fields: [{ key: 'height', label: 'Height (px)', input: 'number', min: 4, max: 400 }],
   },

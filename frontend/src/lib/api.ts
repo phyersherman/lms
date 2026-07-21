@@ -279,6 +279,71 @@ export async function deleteSitePage(pageId: string) {
   return fetchJson(`/pages/${pageId}`, { method: 'DELETE' })
 }
 
+// Website builder: assets
+export async function getAssets(tenantId: string) {
+  return fetchJson(`/tenants/${tenantId}/assets`, { method: 'GET' })
+}
+
+export async function uploadAsset(tenantId: string, file: File) {
+  const fd = new FormData()
+  fd.append('file', file)
+  // fetchJson would set JSON headers; FormData needs its own boundary header
+  const res = await fetch(`${API_BASE}/tenants/${tenantId}/assets`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: csrfToken ? { 'X-CSRF-Token': csrfToken } : undefined,
+    body: fd,
+  })
+  const payload = await res.json()
+  if (!res.ok) throw new Error(payload.error || 'Upload failed')
+  return payload
+}
+
+export async function deleteAsset(tenantId: string, assetId: string) {
+  return fetchJson(`/tenants/${tenantId}/assets/${assetId}`, { method: 'DELETE' })
+}
+
+// Website builder: forms + contacts
+export async function getForms(tenantId: string) {
+  return fetchJson(`/tenants/${tenantId}/forms`, { method: 'GET' })
+}
+
+export async function getForm(formId: string) {
+  return fetchJson(`/forms/${formId}`, { method: 'GET' })
+}
+
+export async function createForm(tenantId: string, data: any) {
+  return fetchJson(`/tenants/${tenantId}/forms`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+}
+
+export async function updateForm(formId: string, data: any) {
+  return fetchJson(`/forms/${formId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+}
+
+export async function deleteForm(formId: string) {
+  return fetchJson(`/forms/${formId}`, { method: 'DELETE' })
+}
+
+export async function getFormSubmissions(formId: string) {
+  return fetchJson(`/forms/${formId}/submissions`, { method: 'GET' })
+}
+
+export async function getContacts(tenantId: string) {
+  return fetchJson(`/tenants/${tenantId}/contacts`, { method: 'GET' })
+}
+
+export async function deleteContact(tenantId: string, contactId: string) {
+  return fetchJson(`/tenants/${tenantId}/contacts/${contactId}`, { method: 'DELETE' })
+}
+
 // Tenant domain management
 export async function getTenantDomains(tenantId: string) {
   return fetchJson(`/tenants/${tenantId}/domains`, { method: 'GET' })
@@ -889,6 +954,17 @@ export default {
   getTenantDomains,
   addTenantDomain,
   removeTenantDomain,
+  getAssets,
+  uploadAsset,
+  deleteAsset,
+  getForms,
+  getForm,
+  createForm,
+  updateForm,
+  deleteForm,
+  getFormSubmissions,
+  getContacts,
+  deleteContact,
   getSiteSettings,
   updateSiteSettings,
   getSitePages,

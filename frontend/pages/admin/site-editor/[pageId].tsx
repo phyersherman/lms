@@ -76,6 +76,7 @@ const SiteEditorPage: React.FC = () => {
       <PageEditor
         initialContent={page.draft_content}
         publishedAt={page.published_at}
+        tenantId={page.tenant_id}
         onSaveDraft={async content => {
           await api.updateSitePage(page.id, { draft_content: content })
         }}
