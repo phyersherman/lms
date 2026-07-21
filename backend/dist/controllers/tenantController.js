@@ -34,4 +34,29 @@ const deleteTenant = async (req, res) => {
         return res.status(404).json({ error: 'not found' });
     res.status(200).json({ success: true });
 };
-exports.default = { listTenants, getTenant, createTenant, updateTenant, deleteTenant };
+const listDomains = async (req, res) => {
+    const domains = await tenantService_1.default.listDomains(req.params.id);
+    res.json(domains);
+};
+const addDomain = async (req, res) => {
+    const { host, isPrimary } = req.body;
+    if (!host || typeof host !== 'string')
+        return res.status(400).json({ error: 'host required' });
+    if (!/^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/i.test(host.trim()) && !host.trim().includes('localhost')) {
+        return res.status(400).json({ error: 'invalid hostname' });
+    }
+    try {
+        const domain = await tenantService_1.default.addDomain(req.params.id, host, !!isPrimary);
+        res.status(201).json(domain);
+    }
+    catch (err) {
+        res.status(409).json({ error: err.message || 'could not add domain' });
+    }
+};
+const removeDomain = async (req, res) => {
+    const removed = await tenantService_1.default.removeDomain(req.params.id, req.params.domainId);
+    if (!removed)
+        return res.status(404).json({ error: 'not found' });
+    res.json({ success: true });
+};
+exports.default = { listTenants, getTenant, createTenant, updateTenant, deleteTenant, listDomains, addDomain, removeDomain };

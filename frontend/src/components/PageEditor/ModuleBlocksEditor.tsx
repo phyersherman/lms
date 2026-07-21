@@ -77,7 +77,7 @@ const ModuleBlocksEditor: React.FC<Props> = ({ blocks, onBlocksChange }) => {
   }
 
   return (
-    <div style={{ display: 'flex', gap: 0, border: '1px solid #e2e8f0', borderRadius: 8, overflow: 'hidden', background: '#f8fafc' }}>
+    <div style={{ display: 'flex', gap: 0, border: '1px solid #e2e8f0', borderRadius: 8, background: '#f8fafc' }}>
       <div style={{ flex: 1, padding: 16, minWidth: 0 }} onClick={() => setSelection(null)}>
         <DndContext sensors={sensors} collisionDetection={closestCorners} onDragEnd={handleDragEnd}>
           <SortableContext items={blocks.map(b => b.id)} strategy={verticalListSortingStrategy}>

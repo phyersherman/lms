@@ -23,7 +23,7 @@ exports.createChapter = createChapter;
 const getChapterById = async (id) => {
     return client_1.default.chapter.findUnique({
         where: { id },
-        include: { modules: { include: { blocks: true } } },
+        include: { modules: { orderBy: { order_index: 'asc' }, include: { blocks: { orderBy: { order_index: 'asc' } } } } },
     });
 };
 exports.getChapterById = getChapterById;
