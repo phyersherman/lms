@@ -41,6 +41,9 @@ const TenantSitePage: React.FC = () => {
   const [savingSettings, setSavingSettings] = useState(false)
   const [navItems, setNavItems] = useState<NavItem[]>([])
   const [footerText, setFooterText] = useState('')
+  const [packageJson, setPackageJson] = useState('')
+  const [importing, setImporting] = useState(false)
+  const [importResult, setImportResult] = useState<{ created: Record<string, string[]>; updated: Record<string, string[]>; warnings: string[] } | null>(null)
 
   const load = useCallback(async () => {
     if (!tenantId) return
@@ -108,6 +111,44 @@ const TenantSitePage: React.FC = () => {
       alert(err instanceof Error ? err.message : 'Failed to save settings')
     } finally {
       setSavingSettings(false)
+    }
+  }
+
+  const handleImportPackage = async () => {
+    setImportResult(null)
+    let pkg: any
+    try {
+      pkg = JSON.parse(packageJson)
+    } catch {
+      alert('Not valid JSON — paste the full site package document.')
+      return
+    }
+    if (!confirm('Import this package? Pages, forms, posts and products with matching slugs/keys will be OVERWRITTEN with the package contents.')) return
+    setImporting(true)
+    try {
+      const summary = await api.importSitePackage(tenantId as string, pkg)
+      setImportResult(summary)
+      setPackageJson('')
+      await load()
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Import failed')
+    } finally {
+      setImporting(false)
+    }
+  }
+
+  const handleExportPackage = async () => {
+    try {
+      const pkg = await api.exportSitePackage(tenantId as string)
+      const blob = new Blob([JSON.stringify(pkg, null, 2)], { type: 'application/json' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `site-package-${tenantId}.json`
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Export failed')
     }
   }
 
@@ -272,6 +313,59 @@ const TenantSitePage: React.FC = () => {
           <button type="button" onClick={saveDesign} disabled={savingSettings} style={btn}>
             {savingSettings ? 'Saving…' : 'Save Navigation & Footer'}
           </button>
+        </div>
+
+        {/* Site package import/export */}
+        <div style={card}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+            <h2 style={{ margin: 0, fontSize: 19 }}>📦 Site Package</h2>
+            <button type="button" onClick={handleExportPackage} style={{ ...btn, background: '#f1f5f9', color: '#334155', border: '1px solid #e2e8f0' }}>
+              ⬇ Export This Site
+            </button>
+          </div>
+          <p style={{ margin: '8px 0 12px 0', color: '#666', fontSize: 13 }}>
+            Build or update this entire site from a single JSON document — settings, theme, navigation, pages, forms,
+            blog posts and products. Re-importing updates items with matching slugs/keys and leaves everything else
+            untouched. Format reference: <code style={{ background: '#f1f5f9', padding: '2px 6px', borderRadius: 4 }}>docs/SITE_PACKAGE_REFERENCE.md</code>
+          </p>
+          <textarea
+            value={packageJson}
+            onChange={e => setPackageJson(e.target.value)}
+            rows={8}
+            placeholder='Paste a site package JSON here, or choose a file below…'
+            style={{ ...input, fontFamily: 'monospace', fontSize: 12, marginBottom: 10 }}
+          />
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+            <input
+              type="file"
+              accept="application/json,.json"
+              onChange={e => {
+                const file = e.target.files?.[0]
+                if (!file) return
+                file.text().then(setPackageJson)
+              }}
+              style={{ fontSize: 13 }}
+            />
+            <button type="button" onClick={handleImportPackage} disabled={importing || !packageJson.trim()} style={{ ...btn, opacity: importing || !packageJson.trim() ? 0.6 : 1 }}>
+              {importing ? 'Importing…' : '⬆ Import Package'}
+            </button>
+          </div>
+          {importResult && (
+            <div style={{ marginTop: 14, padding: 12, background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 6, fontSize: 13 }}>
+              {Object.entries(importResult.created).map(([kind, names]) => (
+                <div key={`c-${kind}`}>✅ Created {kind}: {names.join(', ')}</div>
+              ))}
+              {Object.entries(importResult.updated).map(([kind, names]) => (
+                <div key={`u-${kind}`}>♻️ Updated {kind}: {names.join(', ')}</div>
+              ))}
+              {importResult.warnings.map((w, i) => (
+                <div key={`w-${i}`} style={{ color: '#b45309' }}>⚠️ {w}</div>
+              ))}
+              {Object.keys(importResult.created).length === 0 && Object.keys(importResult.updated).length === 0 && (
+                <div>Nothing imported.</div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </AdminLayout>

@@ -1,0 +1,872 @@
+{
+  "version": 1,
+  "site": {
+    "name": "Genuineness",
+    "theme": {
+      "primaryColor": "#b45309",
+      "secondaryColor": "#1e293b",
+      "backgroundColor": "#ffffff",
+      "textColor": "#1e293b"
+    },
+    "header": {
+      "navItems": [
+        {
+          "label": "Home",
+          "kind": "page",
+          "target": ""
+        },
+        {
+          "label": "About",
+          "kind": "page",
+          "target": "about"
+        },
+        {
+          "label": "Preview",
+          "kind": "page",
+          "target": "preview"
+        },
+        {
+          "label": "White Paper",
+          "kind": "page",
+          "target": "white-paper"
+        },
+        {
+          "label": "Pre-Order",
+          "kind": "page",
+          "target": "pre-order"
+        },
+        {
+          "label": "Blog",
+          "kind": "url",
+          "target": "/blog"
+        },
+        {
+          "label": "Contact",
+          "kind": "page",
+          "target": "contact"
+        }
+      ]
+    },
+    "footer": {
+      "text": "© 2026 Jim Hayden / Genuineness.com",
+      "links": [
+        {
+          "label": "About",
+          "url": "/about"
+        },
+        {
+          "label": "White Paper",
+          "url": "/white-paper"
+        },
+        {
+          "label": "Pre-Order",
+          "url": "/pre-order"
+        },
+        {
+          "label": "Leadership Blog",
+          "url": "/blog"
+        },
+        {
+          "label": "Privacy & Terms",
+          "url": "/privacy"
+        },
+        {
+          "label": "Board Developer",
+          "url": "https://boarddeveloper.com"
+        },
+        {
+          "label": "JimHayden.com",
+          "url": "https://jimhayden.com"
+        }
+      ]
+    },
+    "features": {
+      "lms": false,
+      "blog": true,
+      "commerce": true
+    },
+    "homepage_mode": "site"
+  },
+  "forms": [
+    {
+      "key": "email-capture",
+      "name": "Stay Connected (Email Capture)",
+      "kind": "capture",
+      "fields": [
+        {
+          "key": "first_name",
+          "label": "First Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "email",
+          "label": "Email Address",
+          "type": "email",
+          "required": true
+        }
+      ],
+      "notify_email": null,
+      "success_message": "You're on the list. Genuine leadership content, no noise — we'll let you know the moment the book launches.",
+      "tags": [
+        "newsletter"
+      ]
+    },
+    {
+      "key": "white-paper",
+      "name": "White Paper Download",
+      "kind": "download",
+      "fields": [
+        {
+          "key": "first_name",
+          "label": "First Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "last_name",
+          "label": "Last Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "email",
+          "label": "Email Address",
+          "type": "email",
+          "required": true
+        },
+        {
+          "key": "organization",
+          "label": "Organization",
+          "type": "text",
+          "required": false
+        }
+      ],
+      "notify_email": null,
+      "success_message": "Check your inbox — your copy of the white paper is on its way.",
+      "tags": [
+        "white-paper"
+      ],
+      "lead_magnet_filename": "white-paper.pdf"
+    },
+    {
+      "key": "contact",
+      "name": "Contact",
+      "kind": "contact",
+      "fields": [
+        {
+          "key": "name",
+          "label": "Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "email",
+          "label": "Email",
+          "type": "email",
+          "required": true
+        },
+        {
+          "key": "organization",
+          "label": "Organization",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "inquiry_type",
+          "label": "Inquiry Type",
+          "type": "select",
+          "required": true,
+          "options": [
+            "Speaking",
+            "Bulk Orders",
+            "Board Governance",
+            "General"
+          ]
+        },
+        {
+          "key": "message",
+          "label": "Message",
+          "type": "textarea",
+          "required": true
+        }
+      ],
+      "notify_email": null,
+      "success_message": "Thanks for reaching out — we'll get back to you shortly.",
+      "tags": [
+        "contact"
+      ]
+    },
+    {
+      "key": "blog-subscribe",
+      "name": "Blog Subscription",
+      "kind": "capture",
+      "fields": [
+        {
+          "key": "first_name",
+          "label": "First Name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "email",
+          "label": "Email",
+          "type": "email",
+          "required": true
+        }
+      ],
+      "notify_email": null,
+      "success_message": "You're subscribed. New posts, straight to your inbox — unsubscribe anytime.",
+      "tags": [
+        "blog-subscriber"
+      ]
+    }
+  ],
+  "products": [
+    {
+      "key": "book-preorder",
+      "name": "The Genuine Board Leader — Signed & Inscribed (Pre-Order)",
+      "description": "A personally signed copy of The Genuine Board Leader, inscribed with the message of your choice. Ships on the first day of fulfillment, Fall 2026. Includes immediate access to the complete white paper.",
+      "price_cents": 3500,
+      "currency": "usd",
+      "quantity_tiers": [
+        {
+          "minQty": 2,
+          "unitPriceCents": 3200
+        }
+      ],
+      "custom_fields": [
+        {
+          "key": "personalization",
+          "label": "Personalization Request",
+          "type": "textarea",
+          "required": false,
+          "placeholder": "e.g. \"To [Name], who leads with genuine purpose\" — or write your own"
+        }
+      ],
+      "policy_text": "Payment processed securely at time of order. Full refund available until shipment. Ordering 5+ copies? Contact us for bulk pricing — all copies personally signed and inscribed.",
+      "image_urls": [],
+      "active": true
+    }
+  ],
+  "categories": [
+    {
+      "name": "Board Governance",
+      "slug": "board-governance"
+    },
+    {
+      "name": "Leadership Development",
+      "slug": "leadership-development"
+    },
+    {
+      "name": "The TOUCH Principles",
+      "slug": "touch-principles"
+    },
+    {
+      "name": "Genuine Leadership Stories",
+      "slug": "genuine-leadership-stories"
+    },
+    {
+      "name": "Book Updates",
+      "slug": "book-updates"
+    }
+  ],
+  "posts": [
+    {
+      "slug": "the-question-that-changes-everything",
+      "title": "The Question That Changes Everything in a Boardroom",
+      "excerpt": "What is the single most powerful thing a board facilitator can do in the first five minutes of a board meeting?",
+      "featured": true,
+      "publish": true,
+      "categories": [
+        "board-governance"
+      ],
+      "content": {
+        "sections": [
+          {
+            "settings": {
+              "paddingY": "medium"
+            },
+            "columns": [
+              {
+                "widthFraction": 1,
+                "blocks": [
+                  {
+                    "type": "text",
+                    "content": "<p>What is the single most powerful thing a board facilitator can do in the first five minutes of a board meeting?</p><p>It's not an icebreaker. It's not a recap of the previous meeting. It's not a review of the agenda.</p><p><b>It's a question the organization genuinely doesn't have the answer to yet.</b></p><p><i>(Full post to come — the principles in The Genuine Board Leader didn't emerge from a research lab or a business school. They emerged from thousands of boardrooms, hundreds of leadership assessments, and nineteen years of paying close attention to what actually works when leaders are under real pressure making real decisions. This blog is where those principles continue to develop.)</i></p>"
+                  },
+                  {
+                    "type": "form",
+                    "config": "{\"formKey\":\"blog-subscribe\",\"submitLabel\":\"Subscribe\",\"align\":\"center\"}"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "pages": [
+    {
+      "slug": "",
+      "title": "Home",
+      "seo_title": "The Genuine Board Leader — a forthcoming book by Jim Hayden",
+      "seo_description": "How to create genuineness in your ability to lead. Nineteen principles from nineteen years of board governance practice. Coming Fall 2026 — pre-order your signed copy.",
+      "publish": true,
+      "content": {
+        "sections": [
+          {
+            "settings": {
+              "paddingY": "none",
+              "fullWidth": true
+            },
+            "columns": [
+              {
+                "widthFraction": 1,
+                "blocks": [
+                  {
+                    "type": "hero",
+                    "content": "The Genuine Board Leader",
+                    "config": "{\"kicker\":\"A forthcoming book by Jim Hayden · Coming Fall 2026\",\"subheading\":\"How to Create Genuineness in Your Ability to Lead\",\"alignment\":\"center\",\"height\":\"large\",\"backgroundColor\":\"#1e293b\",\"textColor\":\"#ffffff\",\"buttons\":[{\"label\":\"Watch the Ten-Minute Preview\",\"url\":\"/preview\",\"variant\":\"solid\"},{\"label\":\"Download the Free White Paper\",\"url\":\"/white-paper\",\"variant\":\"outline\"},{\"label\":\"Pre-Order Your Signed Copy\",\"url\":\"/pre-order\",\"variant\":\"outline\"}]}"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "settings": {
+              "paddingY": "medium"
+            },
+            "columns": [
+              {
+                "widthFraction": 1,
+                "blocks": [
+                  {
+                    "type": "text",
+                    "content": "<p style=\"text-align:center;font-size:20px;line-height:1.7\"><b>Nineteen years. Thousands of board meetings. Hundreds of leadership assessments. One discovery:</b></p><p style=\"text-align:center;font-size:18px;line-height:1.7\">The leaders and boards that create sustainable competitive advantage aren't the ones with the longest résumés. They're the ones who lead with genuine alignment between who they claim to be and how they actually show up.</p>"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "settings": {
+              "paddingY": "large",
+              "backgroundColor": "#f8fafc"
+            },
+            "columns": [
+              {
+                "widthFraction": 1,
+                "blocks": [
+                  {
+                    "type": "text",
+                    "content": "<h2 style=\"text-align:center\">The Thread That Runs Through Everything</h2><p style=\"text-align:center\">At the heart of <i>The Genuine Board Leader</i> is a framework developed over two decades of working with leaders at every level of organizational life.</p>"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "settings": {
+              "paddingY": "medium",
+              "backgroundColor": "#f8fafc"
+            },
+            "columns": [
+              {
+                "widthFraction": 0.5,
+                "blocks": [
+                  {
+                    "type": "text",
+                    "content": "<h3>T — Tell Your Story</h3><p>Lead with authenticity. Your actual story, not the polished version, is your most powerful leadership asset.</p>"
+                  },
+                  {
+                    "type": "text",
+                    "content": "<h3>O — Optimistic</h3><p>Choose optimism deliberately. Not as naivety, but as a refusal to let pessimism become your default leadership mode.</p>"
+                  },
+                  {
+                    "type": "text",
+                    "content": "<h3>U — Unconditional</h3><p>Build relationships that transcend transactional benefit. Care about people for who they are, not what they can do for you.</p>"
+                  }
+                ]
+              },
+              {
+                "widthFraction": 0.5,
+                "blocks": [
+                  {
+                    "type": "text",
+                    "content": "<h3>C — Care</h3><p>Show it visibly. Transparently. Genuine care changes how people show up around you.</p>"
+                  },
+                  {
+                    "type": "text",
+                    "content": "<h3>H — Help</h3><p>Give it without keeping score. And when help is offered to you, receive it with the same grace you give it.</p>"
+                  },
+                  {
+                    "type": "text",
+                    "content": "<p style=\"color:#64748b\"><i>These five principles are explored in depth in The Genuine Board Leader — and they are available to begin practicing today.</i></p>"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "settings": {
+              "paddingY": "medium"
+            },
+            "columns": [
+              {
+                "widthFraction": 1,
+                "blocks": [
+                  {
+                    "type": "text",
+                    "content": "<h2 style=\"text-align:center\">Hear It From Jim</h2><p style=\"text-align:center\">In this ten-minute preview, Jim Hayden shares six of the nineteen principles that make up <i>The Genuine Board Leader</i> — including where leadership actually begins, why your best board member makes you uncomfortable, and what a Styrofoam cup has to do with genuine legacy.</p>"
+                  },
+                  {
+                    "type": "text",
+                    "content": "<div style=\"border:2px dashed #cbd5e1;border-radius:10px;padding:56px 24px;text-align:center;background:#f8fafc\"><p style=\"font-size:18px;margin:0 0 6px 0\"><b>🎬 Ten-Minute Preview — coming soon</b></p><p style=\"color:#64748b;margin:0\">Jim's recorded preview will be embedded here once the Zoom recording is delivered.</p></div>"
+                  },
+                  {
+                    "type": "button",
+                    "content": "Watch Now",
+                    "config": "{\"url\":\"/preview\",\"alignment\":\"center\",\"size\":\"large\",\"backgroundColor\":\"#b45309\",\"textColor\":\"#ffffff\"}"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "settings": {
+              "paddingY": "large",
+              "backgroundColor": "#f8fafc"
+            },
+            "columns": [
+              {
+                "widthFraction": 1,
+                "blocks": [
+                  {
+                    "type": "text",
+                    "content": "<h2>About the Book</h2><p><i>The Genuine Board Leader</i> synthesizes the proven principles of three remarkable thinkers — Jim Collins, Simon Sinek, and David Novak — filtered through nineteen years of real-world board governance practice.</p><p><b>This isn't another leadership theory. It's a guide to how genuine leadership actually develops when you're willing to do the work.</b></p><p>Across nineteen chapters, <i>The Genuine Board Leader</i> explores:</p><ul><li>Why your leadership DNA was installed before you ever entered a boardroom</li><li>How intentional learners practice excellence as a daily discipline</li><li>Why your best board member is the one who makes you most uncomfortable</li><li>How failure becomes your organization's most valuable curriculum</li><li>Why simplicity is a leadership discipline most organizations violate daily</li><li>How to build boards that are architectures of character, not collections of credentials</li><li>What it means to lead as a steward rather than an owner</li><li>And thirteen more principles that transform how boards function and how leaders develop</li></ul><p><b>Coming Fall 2026</b></p>"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "settings": {
+              "paddingY": "medium"
+            },
+            "columns": [
+              {
+                "widthFraction": 1,
+                "blocks": [
+                  {
+                    "type": "text",
+                    "content": "<h2 style=\"text-align:center\">Reserve Your Copy Today</h2><p style=\"text-align:center\">Pre-order and receive a personally signed copy, a personalized inscription of your choice, early access to the complete white paper, and first notification when the book ships. Your pre-order helps determine print run and ensures your copy ships on day one.</p>"
+                  },
+                  {
+                    "type": "product",
+                    "config": "{\"productKey\":\"book-preorder\",\"buttonLabel\":\"Pre-Order Now\"}"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "settings": {
+              "paddingY": "large",
+              "backgroundColor": "#f0f4f8"
+            },
+            "columns": [
+              {
+                "widthFraction": 1,
+                "blocks": [
+                  {
+                    "type": "text",
+                    "content": "<h2 style=\"text-align:center\">Stay Connected</h2><p style=\"text-align:center\">Be the first to know when <i>The Genuine Board Leader</i> launches. Receive leadership insights, early chapter previews, and exclusive content from Jim Hayden directly to your inbox.</p>"
+                  },
+                  {
+                    "type": "form",
+                    "config": "{\"formKey\":\"email-capture\",\"submitLabel\":\"Yes, Keep Me Informed\",\"align\":\"center\"}"
+                  },
+                  {
+                    "type": "text",
+                    "content": "<p style=\"text-align:center;color:#64748b;font-size:14px\">No spam. No noise. Just genuine leadership content worth your time.</p>"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "settings": {
+              "paddingY": "medium"
+            },
+            "columns": [
+              {
+                "widthFraction": 0.5,
+                "blocks": [
+                  {
+                    "type": "text",
+                    "content": "<h2>Start Reading Now</h2><p>Can't wait for the book? Download the free white paper — a twelve-thousand-word synthesis of the core principles that form the foundation of <i>The Genuine Board Leader</i>.</p><p>The white paper covers: where leadership actually begins, the intentional learner framework, truth tellers and intellectual diversity, the power of simplicity, preparation as learning, the TOUCH principles, and more.</p>"
+                  },
+                  {
+                    "type": "button",
+                    "content": "Download Free White Paper",
+                    "config": "{\"url\":\"/white-paper\",\"alignment\":\"left\",\"size\":\"medium\",\"backgroundColor\":\"#b45309\",\"textColor\":\"#ffffff\"}"
+                  },
+                  {
+                    "type": "text",
+                    "content": "<p style=\"color:#64748b;font-size:14px\">Delivered instantly to your inbox. No cost. No obligation.</p>"
+                  }
+                ]
+              },
+              {
+                "widthFraction": 0.5,
+                "blocks": [
+                  {
+                    "type": "text",
+                    "content": "<h2>About Jim Hayden</h2><p>Jim Hayden is the founder of Board Developer, one of the nation's leading board governance and leadership development firms, and the author of <i>The Power of Touch</i>, available on Amazon. Over nineteen years he has facilitated thousands of board meetings, conducted thousands of leadership assessments, and worked with organizations across every sector and scale.</p><p>His work synthesizes the best of what is known about human behavior, organizational psychology, and governance practice into frameworks that leaders can actually use.</p>"
+                  },
+                  {
+                    "type": "button",
+                    "content": "Read Full Bio",
+                    "config": "{\"url\":\"/about\",\"alignment\":\"left\",\"size\":\"medium\",\"backgroundColor\":\"#1e293b\",\"textColor\":\"#ffffff\"}"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "about",
+      "title": "About Jim Hayden",
+      "seo_title": "About Jim Hayden — Founder of Board Developer",
+      "seo_description": "Founder of Board Developer, author of The Power of Touch, host of the A-Ha Moments podcast — and author of the forthcoming book The Genuine Board Leader.",
+      "publish": true,
+      "content": {
+        "sections": [
+          {
+            "settings": {
+              "paddingY": "medium"
+            },
+            "columns": [
+              {
+                "widthFraction": 1,
+                "blocks": [
+                  {
+                    "type": "text",
+                    "content": "<h1>About Jim Hayden</h1><p>Jim Hayden didn't arrive at leadership through a traditional path. He was born on an Air Force base and spent his first eight years living in Asia — the Philippines and Korea — navigating two radically different cultures before he understood what culture meant. Growing up as one of ten of twelve children, he slept on a canvas cot that was folded against the wall every morning because the space was that precious.</p><p>He delivered pizzas on the west side of Phoenix. He pursued a significant clinical background. He worked for and ultimately ran Southwest Ambulance, a billion-dollar company with thirteen thousand employees. And in 2007, he founded Board Developer, now one of the nation's foremost board governance and leadership development firms.</p><p>Over nineteen years, Hayden has facilitated thousands of board meetings, conducted thousands of leadership assessments through the Hayden Leadership Framework, served on dozens of boards, and founded multiple organizations — including Stop Our Stigma, a nonprofit dedicated to mental health awareness, and gilberttalks.org, a civic engagement platform he founded and stepped back from, which continues to thrive without his direct involvement.</p><p>He is the author of <i>The Power of Touch</i>, available on Amazon, a book that established the human connection principles that form the foundation of his leadership philosophy.</p><p>His forthcoming book, <i>The Genuine Board Leader</i>, synthesizes principles from Jim Collins, Simon Sinek, and David Novak with nineteen years of real-world governance practice into a guide for leaders who are ready to stop performing and start being.</p><p>Hayden hosts the A-Ha Moments podcast, where he has interviewed hundreds of accomplished leaders about the single most transformative moment that shaped their leadership journey. The consistent finding: the most profound leadership moments trace back to childhood.</p><p>He divides his time between Tempe, Arizona and Denver, Colorado.</p>"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "settings": {
+              "paddingY": "medium",
+              "backgroundColor": "#f8fafc"
+            },
+            "columns": [
+              {
+                "widthFraction": 1,
+                "blocks": [
+                  {
+                    "type": "text",
+                    "content": "<h2>Connect</h2><ul><li><a href=\"https://boarddeveloper.com\" target=\"_blank\" rel=\"noopener\">Board Developer — boarddeveloper.com</a></li><li><a href=\"https://jimhayden.com\" target=\"_blank\" rel=\"noopener\">Personal Website — jimhayden.com</a></li><li><i>The Power of Touch</i> — available on Amazon <span style=\"color:#94a3b8\">(direct listing link to be provided by Jim)</span></li></ul>"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "settings": {
+              "paddingY": "none",
+              "fullWidth": true
+            },
+            "columns": [
+              {
+                "widthFraction": 1,
+                "blocks": [
+                  {
+                    "type": "hero",
+                    "content": "Ready to lead genuinely?",
+                    "config": "{\"subheading\":\"Reserve a personally signed copy of The Genuine Board Leader.\",\"alignment\":\"center\",\"height\":\"small\",\"backgroundColor\":\"#1e293b\",\"textColor\":\"#ffffff\",\"buttons\":[{\"label\":\"Pre-Order Your Signed Copy\",\"url\":\"/pre-order\",\"variant\":\"solid\"},{\"label\":\"Download Free White Paper\",\"url\":\"/white-paper\",\"variant\":\"outline\"}]}"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "preview",
+      "title": "Watch the Preview",
+      "seo_title": "Ten-Minute Preview — The Genuine Board Leader",
+      "seo_description": "Six principles that will change how you lead: where leadership begins, the WAIT acronym, TOUCH, the Styrofoam cup, and more.",
+      "publish": true,
+      "content": {
+        "sections": [
+          {
+            "settings": {
+              "paddingY": "medium"
+            },
+            "columns": [
+              {
+                "widthFraction": 1,
+                "blocks": [
+                  {
+                    "type": "text",
+                    "content": "<h1 style=\"text-align:center\">Watch the Preview</h1><h3 style=\"text-align:center\">Six Principles That Will Change How You Lead</h3><p style=\"text-align:center\">In this ten-minute preview, Jim Hayden shares six of the nineteen principles at the heart of <i>The Genuine Board Leader</i>:</p>"
+                  },
+                  {
+                    "type": "text",
+                    "content": "<div style=\"border:2px dashed #cbd5e1;border-radius:10px;padding:56px 24px;text-align:center;background:#f8fafc\"><p style=\"font-size:18px;margin:0 0 6px 0\"><b>🎬 Ten-Minute Preview — coming soon</b></p><p style=\"color:#64748b;margin:0\">Jim's recorded preview will be embedded here once the Zoom recording is delivered.</p></div>"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "settings": {
+              "paddingY": "medium"
+            },
+            "columns": [
+              {
+                "widthFraction": 1,
+                "blocks": [
+                  {
+                    "type": "text",
+                    "content": "<ul style=\"line-height:1.9\"><li><b>Where leadership actually begins</b> — and why it's almost certainly not where you think.</li><li><b>The WAIT acronym</b> — a simple four-letter intervention that transforms how you listen in every room you enter.</li><li><b>The attorney with the glasses</b> — a true story about the most valuable board member who had no subject matter expertise whatsoever.</li><li><b>The sales leader story</b> — how a board unanimously made the call a CEO couldn't make himself, and why he called it the best board meeting he ever had.</li><li><b>TOUCH</b> — the five principles that run through every chapter of the book and every genuine leadership relationship.</li><li><b>The Styrofoam cup</b> — what happens when the position is gone and only the person remains.</li></ul>"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "settings": {
+              "paddingY": "large",
+              "backgroundColor": "#f8fafc"
+            },
+            "columns": [
+              {
+                "widthFraction": 1,
+                "blocks": [
+                  {
+                    "type": "text",
+                    "content": "<h2>What You'll Discover in the Full Book</h2><p>The preview covers six principles. The book covers nineteen. Here's a glimpse of what's waiting:</p><ul><li>How preparation itself changes how you listen, and the twenty-year note-taking system that proves it</li><li>Why reflection doesn't work in a quiet room for most leaders, and what to do instead</li><li>How to build boards that are architectures of character, not collections of credentials</li><li>The mathematical case for advisory boards: one hundred fifty to two hundred ten years of collective experience sitting around one table</li><li>Why simplicity is a leadership discipline that most organizations violate every time something goes wrong</li><li>How to manage technology so it doesn't manage you, and what thousands of hours saved in six months actually looks like</li><li>What genuine legacy means and how to build something that thrives long after you step back</li></ul>"
+                  },
+                  {
+                    "type": "button",
+                    "content": "Pre-Order Your Signed Copy",
+                    "config": "{\"url\":\"/pre-order\",\"alignment\":\"center\",\"size\":\"large\",\"backgroundColor\":\"#b45309\",\"textColor\":\"#ffffff\"}"
+                  },
+                  {
+                    "type": "button",
+                    "content": "Download Free White Paper",
+                    "config": "{\"url\":\"/white-paper\",\"alignment\":\"center\",\"size\":\"medium\",\"backgroundColor\":\"#1e293b\",\"textColor\":\"#ffffff\"}"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "white-paper",
+      "title": "Free White Paper",
+      "seo_title": "Free White Paper — The Genuine Board Leader",
+      "seo_description": "A twelve-thousand-word synthesis of the principles behind The Genuine Board Leader. Free, delivered instantly.",
+      "publish": true,
+      "content": {
+        "sections": [
+          {
+            "settings": {
+              "paddingY": "medium"
+            },
+            "columns": [
+              {
+                "widthFraction": 1,
+                "blocks": [
+                  {
+                    "type": "text",
+                    "content": "<h1 style=\"text-align:center\">The Free White Paper</h1><h3 style=\"text-align:center\">The Genuine Board Leader: How to Create Genuineness in Your Ability to Lead</h3><p style=\"text-align:center\"><b>Before the book. Before the workbook. Before the learning manual.</b></p><p>This twelve-thousand-word white paper is the synthesis of three remarkable leadership frameworks — Jim Collins, Simon Sinek, and David Novak — filtered through nineteen years of real-world board governance practice.</p><p>It's not a commercial. It's not a pitch. It's a genuine exploration of the principles that separate leaders who perform from leaders who actually are.</p><p>The white paper covers nineteen principles including:</p><ul><li>Where leadership actually begins and the archaeological work required to understand it</li><li>The intentional learner: how great leaders practice excellence as a daily discipline</li><li>Truth tellers and intellectual diversity: why your best board member makes you uncomfortable</li><li>The power of simplicity: KISS and proportional response</li><li>Preparation as learning: your notes are your memory</li><li>The boardroom as a strategic question engine</li><li>Failure as curriculum · Reflection in motion · Managing technology so it doesn't manage you</li><li>TOUCH as leadership practice · Legacy beyond your tenure · And more</li></ul>"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "settings": {
+              "paddingY": "large",
+              "backgroundColor": "#f8fafc"
+            },
+            "columns": [
+              {
+                "widthFraction": 1,
+                "blocks": [
+                  {
+                    "type": "form",
+                    "config": "{\"formKey\":\"white-paper\",\"submitLabel\":\"Send Me The White Paper\",\"align\":\"center\"}"
+                  },
+                  {
+                    "type": "text",
+                    "content": "<p style=\"text-align:center;color:#64748b;font-size:14px\">Delivered instantly. No spam. No obligation. Just genuine leadership content.</p>"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "pre-order",
+      "title": "Pre-Order",
+      "seo_title": "Pre-Order a Signed Copy — The Genuine Board Leader",
+      "seo_description": "Reserve a personally signed and inscribed copy of The Genuine Board Leader. Ships day one, Fall 2026. Full refund until shipment.",
+      "publish": true,
+      "content": {
+        "sections": [
+          {
+            "settings": {
+              "paddingY": "none",
+              "fullWidth": true
+            },
+            "columns": [
+              {
+                "widthFraction": 1,
+                "blocks": [
+                  {
+                    "type": "hero",
+                    "content": "Pre-Order Your Signed Copy",
+                    "config": "{\"subheading\":\"The Genuine Board Leader arrives Fall 2026. Pre-order today and receive a personally signed and inscribed copy from Jim Hayden, customized with whatever message matters most to you — or the person you’re gifting it to.\",\"alignment\":\"center\",\"height\":\"medium\",\"backgroundColor\":\"#1e293b\",\"textColor\":\"#ffffff\"}"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "settings": {
+              "paddingY": "medium"
+            },
+            "columns": [
+              {
+                "widthFraction": 1,
+                "blocks": [
+                  {
+                    "type": "text",
+                    "content": "<h2>What You Receive</h2><ul style=\"line-height:1.9\"><li><b>A personally signed copy</b> — signed by Jim Hayden at time of fulfillment</li><li><b>A personalized inscription</b> — your name, a colleague's name, or a custom message</li><li><b>Priority shipping</b> — your copy ships on the first day of fulfillment</li><li><b>Immediate white paper access</b> — download the complete white paper the moment you pre-order</li><li><b>Launch day notification</b> — you'll be the first to know when the book ships</li></ul>"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "settings": {
+              "paddingY": "medium",
+              "backgroundColor": "#f8fafc"
+            },
+            "columns": [
+              {
+                "widthFraction": 1,
+                "blocks": [
+                  {
+                    "type": "product",
+                    "config": "{\"productKey\":\"book-preorder\",\"buttonLabel\":\"Complete Pre-Order\"}"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "settings": {
+              "paddingY": "medium"
+            },
+            "columns": [
+              {
+                "widthFraction": 1,
+                "blocks": [
+                  {
+                    "type": "text",
+                    "content": "<h2>Ordering for Your Board or Team?</h2><p><i>The Genuine Board Leader</i> is designed to be read together. Many organizations use it as the foundation for board retreats, leadership development programs, and executive team discussions.</p><p>For orders of five or more copies, contact us directly for organizational pricing and bulk personalization options.</p>"
+                  },
+                  {
+                    "type": "button",
+                    "content": "Contact Us for Bulk Orders",
+                    "config": "{\"url\":\"/contact\",\"alignment\":\"left\",\"size\":\"medium\",\"backgroundColor\":\"#1e293b\",\"textColor\":\"#ffffff\"}"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "contact",
+      "title": "Contact",
+      "seo_title": "Contact — Jim Hayden / Board Developer",
+      "seo_description": "Speaking inquiries, bulk book orders, board governance engagements, or general questions.",
+      "publish": true,
+      "content": {
+        "sections": [
+          {
+            "settings": {
+              "paddingY": "medium"
+            },
+            "columns": [
+              {
+                "widthFraction": 0.5,
+                "blocks": [
+                  {
+                    "type": "text",
+                    "content": "<h1>Contact</h1><p>For speaking inquiries, bulk book orders, board governance engagements, or general questions:</p><p><b>Jim Hayden</b><br/>Founder, Board Developer<br/>Author, <i>The Power of Touch</i> and <i>The Genuine Board Leader</i></p><p>Board Developer<br/>120 East Rio Salado Parkway<br/>Tempe, Arizona<br/><a href=\"https://boarddeveloper.com\" target=\"_blank\" rel=\"noopener\">boarddeveloper.com</a></p><p><a href=\"https://jimhayden.com\" target=\"_blank\" rel=\"noopener\">Jim Hayden — personal website</a><br/><i>The Power of Touch</i> — available on Amazon</p>"
+                  }
+                ]
+              },
+              {
+                "widthFraction": 0.5,
+                "blocks": [
+                  {
+                    "type": "form",
+                    "config": "{\"formKey\":\"contact\",\"submitLabel\":\"Send Message\"}"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "privacy",
+      "title": "Privacy & Terms",
+      "seo_title": "Privacy Policy & Terms of Use — Genuineness.com",
+      "seo_description": "How Genuineness.com handles your information.",
+      "publish": true,
+      "content": {
+        "sections": [
+          {
+            "settings": {
+              "paddingY": "medium"
+            },
+            "columns": [
+              {
+                "widthFraction": 1,
+                "blocks": [
+                  {
+                    "type": "text",
+                    "content": "<h1>Privacy Policy</h1><p>Genuineness.com collects email addresses solely for the purpose of delivering requested content and book launch notifications. We do not sell, share, or distribute your information to third parties. You may unsubscribe at any time.</p><h1>Terms of Use</h1><p>All content on Genuineness.com is the intellectual property of Jim Hayden and Board Developer. <i>The Genuine Board Leader</i>, <i>The Power of Touch</i>, the TOUCH framework, and the Hayden Leadership Framework are proprietary intellectual property. Reproduction without written permission is prohibited.</p>"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

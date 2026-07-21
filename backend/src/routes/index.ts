@@ -16,6 +16,7 @@ import requireFeature from '../middleware/requireFeature'
 import siteController from '../controllers/siteController'
 import postController from '../controllers/postController'
 import commerceController from '../controllers/commerceController'
+import sitePackageController from '../controllers/sitePackageController'
 import { authLimiter, inviteLimiter, formSubmitLimiter } from '../middleware/rateLimiters'
 import multer from 'multer'
 import assetController from '../controllers/assetController'
@@ -56,6 +57,10 @@ router.delete('/pages/:pageId', requireRoleAuth(['admin']), siteController.delet
 
 // website builder: public site + page resolution (no auth)
 router.get('/public/site-page', siteController.getPublicSitePage)
+
+// website builder: site package import/export (admin)
+router.post('/tenants/:tenantId/site-package/import', requireRoleAuth(['admin']), sitePackageController.importPackage)
+router.get('/tenants/:tenantId/site-package/export', requireRoleAuth(['admin']), sitePackageController.exportPackage)
 
 // website builder: assets (admin)
 router.post('/tenants/:tenantId/assets', requireRoleAuth(['admin']), uploadMiddleware.single('file'), assetController.upload)

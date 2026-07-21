@@ -23,7 +23,8 @@ app.post(
   (req, res) => void commerceController.webhook(req, res)
 )
 
-app.use(express.json())
+// 5mb limit accommodates site-package imports (whole-site JSON documents)
+app.use(express.json({ limit: '5mb' }))
 app.use(morgan('dev'))
 
 // The app is served same-origin on every site domain (Next rewrite in dev,

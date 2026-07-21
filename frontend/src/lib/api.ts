@@ -446,6 +446,19 @@ export async function updateOrderStatus(tenantId: string, orderId: string, statu
   })
 }
 
+// Site packages (whole-site import/export)
+export async function importSitePackage(tenantId: string, pkg: any) {
+  return fetchJson(`/tenants/${tenantId}/site-package/import`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ package: pkg }),
+  })
+}
+
+export async function exportSitePackage(tenantId: string) {
+  return fetchJson(`/tenants/${tenantId}/site-package/export`, { method: 'GET' })
+}
+
 // Tenant domain management
 export async function getTenantDomains(tenantId: string) {
   return fetchJson(`/tenants/${tenantId}/domains`, { method: 'GET' })
@@ -1067,6 +1080,8 @@ export default {
   getFormSubmissions,
   getContacts,
   deleteContact,
+  importSitePackage,
+  exportSitePackage,
   getCommerceConfig,
   updateCommerceConfig,
   getProducts,

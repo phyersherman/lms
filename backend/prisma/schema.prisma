@@ -70,9 +70,12 @@ model Product {
   policy_text    String? // e.g. refund-until-shipment policy shown at checkout
   image_urls     String[] @default([])
   active         Boolean  @default(true)
+  import_key     String? // stable key for site-package import/update
   created_at     DateTime @default(now())
   updated_at     DateTime @updatedAt
   orders         Order[]
+
+  @@unique([tenant_id, import_key])
 }
 
 model Order {
@@ -149,9 +152,12 @@ model Form {
   lead_magnet_asset_id String? // Asset delivered via signed link after submission
   success_message      String?
   tags                 String[]         @default([]) // tags applied to the contact
+  import_key           String? // stable key for site-package import/update
   created_at           DateTime         @default(now())
   updated_at           DateTime         @updatedAt
   submissions          FormSubmission[]
+
+  @@unique([tenant_id, import_key])
 }
 
 model FormSubmission {

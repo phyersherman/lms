@@ -65,16 +65,21 @@ export const validatePageContent = (content: any): PageContent => {
 // Slugs that collide with app routes and can never be used for site pages.
 export const RESERVED_SLUGS = new Set([
   'admin', 'api', 'login', 'logout', 'dashboard', 'my-courses', 'course', 'courses',
-  'certificates', 'preview', 'blog', 'checkout', 'accept-invite', 'forgot-password',
+  'certificates', 'blog', 'checkout', 'accept-invite', 'forgot-password',
   'reset-password', 'passwordless-login', 'passwordless-register', '_next', 'uploads',
   'sitemap.xml', 'robots.txt', 'favicon.ico',
 ])
+
+// Only the LMS sub-routes are taken under /preview (/preview/course/*,
+// /preview/module/*) — a top-level "preview" page is allowed.
+const RESERVED_NESTED = new Set(['preview'])
 
 export const validateSlug = (slug: string): string => {
   const clean = slug.trim().toLowerCase().replace(/^\/+|\/+$/g, '')
   if (clean === '') return '' // homepage
   const first = clean.split('/')[0]
   if (RESERVED_SLUGS.has(first)) throw new Error(`slug "${first}" is reserved`)
+  if (RESERVED_NESTED.has(first) && clean.includes('/')) throw new Error(`slugs under "${first}/" are reserved`)
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)*$/.test(clean)) {
     throw new Error('slug may only contain lowercase letters, numbers, hyphens and slashes')
   }
