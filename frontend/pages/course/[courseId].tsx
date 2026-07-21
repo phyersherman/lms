@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
-import QuizBlockDisplay from '../../src/components/BlockEditor/blocks/QuizBlockDisplay'
+import BlockDisplay from '../../src/components/blocks/BlockDisplay'
 import api from '../../src/lib/api'
 import LearnerLayout from '../../src/components/LearnerLayout'
 
@@ -685,140 +685,11 @@ interface BlockRendererProps {
   courseId: string
 }
 
-const BlockRenderer: React.FC<BlockRendererProps> = ({ block, courseId }) => {
-  if (block.type === 'text') {
-    return (
-      <div
-        style={{ marginBottom: '16px' }}
-        dangerouslySetInnerHTML={{ __html: block.content || '' }}
-      />
-    )
-  }
-
-  if (block.type === 'image') {
-    const config = block.config ? JSON.parse(block.config) : {}
-    return (
-      <div style={{ marginBottom: '20px', textAlign: 'center' }}>
-        <img
-          src={config.url || block.content}
-          alt={config.alt || 'Block image'}
-          style={{ maxWidth: '100%', borderRadius: '8px' }}
-        />
-        {config.caption && (
-          <p style={{ fontSize: '13px', color: '#666', marginTop: '8px' }}>
-            {config.caption}
-          </p>
-        )}
-      </div>
-    )
-  }
-
-  if (block.type === 'video') {
-    const config = block.config ? JSON.parse(block.config) : {}
-    let videoUrl = config.url || block.content || ''
-
-    // Convert YouTube URLs to embed format (handles watch, shorts, live, youtu.be)
-    try {
-      const urlObj = new URL(videoUrl)
-      const host = urlObj.hostname.replace(/^www\./, '')
-      if (host === 'youtube.com' || host === 'm.youtube.com') {
-        const vid = urlObj.searchParams.get('v')
-        if (vid) {
-          videoUrl = `https://www.youtube.com/embed/${vid}`
-        } else {
-          const pathMatch = urlObj.pathname.match(/\/(shorts|live|embed)\/([\w-]+)/)
-          if (pathMatch && pathMatch[1] !== 'embed') {
-            videoUrl = `https://www.youtube.com/embed/${pathMatch[2]}`
-          }
-        }
-      } else if (host === 'youtu.be') {
-        const id = urlObj.pathname.slice(1)
-        if (id) videoUrl = `https://www.youtube.com/embed/${id}`
-      } else if (host === 'vimeo.com') {
-        const vimeoId = urlObj.pathname.split('/').pop()
-        if (vimeoId) videoUrl = `https://player.vimeo.com/video/${vimeoId}`
-      }
-    } catch { /* not a valid URL, use as-is */ }
-
-    return (
-      <div style={{ marginBottom: '20px' }}>
-        <iframe
-          width="100%"
-          height="400"
-          src={videoUrl}
-          title="Embedded video"
-          frameBorder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-          style={{ borderRadius: '8px' }}
-        />
-      </div>
-    )
-  }
-
-  if (block.type === 'quiz') {
-    return (
-      <div key={block.id} style={{ marginBottom: '20px' }}>
-        <QuizBlockDisplay block={block as any} courseId={courseId} />
-      </div>
-    )
-  }
-
-  if (block.type === 'quote') {
-    const config = block.config ? JSON.parse(block.config) : {}
-    return (
-      <div
-        style={{
-          marginBottom: '20px',
-          padding: '16px',
-          borderLeft: `4px solid ${config.borderColor || '#667eea'}`,
-          background: config.backgroundColor || '#f9fafb',
-          borderRadius: '4px',
-        }}
-      >
-        <p style={{ fontSize: '16px', fontStyle: 'italic', color: config.textColor || '#333' }}>
-          "{block.content || 'Quote'}"
-        </p>
-        {config.attribution && (
-          <p style={{ fontSize: '13px', color: '#666', marginTop: '8px' }}>
-            — {config.attribution}
-          </p>
-        )}
-      </div>
-    )
-  }
-
-  if (block.type === 'button') {
-    const config = block.config ? JSON.parse(block.config) : {}
-    return (
-      <div
-        style={{
-          marginBottom: '20px',
-          textAlign: config.alignment === 'center' ? 'center' : config.alignment === 'right' ? 'right' : 'left',
-        }}
-      >
-        <a
-          href={config.url || '#'}
-          target={config.openInNewTab ? '_blank' : '_self'}
-          rel="noreferrer"
-          style={{
-            display: 'inline-block',
-            padding: config.size === 'small' ? '8px 16px' : config.size === 'large' ? '14px 28px' : '10px 20px',
-            background: config.backgroundColor || '#667eea',
-            color: config.textColor || 'white',
-            borderRadius: '6px',
-            textDecoration: 'none',
-            fontWeight: 500,
-            fontSize: '14px',
-          }}
-        >
-          {block.content || 'Click Here'}
-        </a>
-      </div>
-    )
-  }
-
-  return null
-}
+// Thin wrapper over the shared block registry renderer.
+const BlockRenderer: React.FC<BlockRendererProps> = ({ block, courseId }) => (
+  <div style={{ marginBottom: '20px' }}>
+    <BlockDisplay block={block} context={{ surface: 'lms', courseId }} />
+  </div>
+)
 
 export default CourseViewPage
