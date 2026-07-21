@@ -14,6 +14,7 @@ import requireAuth from '../middleware/authGuard'
 import { requireAuth as requireRoleAuth } from '../middleware/authGuard'
 import requireFeature from '../middleware/requireFeature'
 import siteController from '../controllers/siteController'
+import postController from '../controllers/postController'
 import { authLimiter, inviteLimiter, formSubmitLimiter } from '../middleware/rateLimiters'
 import multer from 'multer'
 import assetController from '../controllers/assetController'
@@ -69,6 +70,22 @@ router.delete('/forms/:formId', requireRoleAuth(['admin']), formController.delet
 router.get('/forms/:formId/submissions', requireRoleAuth(['admin']), formController.listSubmissions)
 router.get('/tenants/:tenantId/contacts', requireRoleAuth(['admin']), formController.listContacts)
 router.delete('/tenants/:tenantId/contacts/:contactId', requireRoleAuth(['admin']), formController.deleteContact)
+
+// blog (admin)
+router.get('/tenants/:tenantId/posts', requireRoleAuth(['admin']), postController.listPosts)
+router.post('/tenants/:tenantId/posts', requireRoleAuth(['admin']), postController.createPost)
+router.get('/posts/:postId', requireRoleAuth(['admin']), postController.getPost)
+router.put('/posts/:postId', requireRoleAuth(['admin']), postController.updatePost)
+router.post('/posts/:postId/publish', requireRoleAuth(['admin']), postController.publishPost)
+router.post('/posts/:postId/unpublish', requireRoleAuth(['admin']), postController.unpublishPost)
+router.delete('/posts/:postId', requireRoleAuth(['admin']), postController.deletePost)
+router.get('/tenants/:tenantId/categories', requireRoleAuth(['admin']), postController.listCategories)
+router.post('/tenants/:tenantId/categories', requireRoleAuth(['admin']), postController.createCategory)
+router.delete('/tenants/:tenantId/categories/:categoryId', requireRoleAuth(['admin']), postController.deleteCategory)
+
+// blog (public; feature-gated inside the controller)
+router.get('/public/posts', postController.listPublicPosts)
+router.get('/public/posts/:slug', postController.getPublicPost)
 
 // website builder: public form endpoints (no auth; CSRF exempt under /public/)
 router.get('/public/forms/:formId', formController.getPublicForm)

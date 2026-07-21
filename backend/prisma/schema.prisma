@@ -36,6 +36,40 @@ model Tenant {
   forms                   Form[]
   formSubmissions         FormSubmission[]
   contacts                Contact[]
+  posts                   Post[]
+  categories              Category[]
+}
+
+// Blog post. Body uses the same JSON layout tree as Page so the visual
+// editor is reused.
+model Post {
+  id              String     @id @default(cuid())
+  tenant_id       String
+  tenant          Tenant     @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  slug            String
+  title           String
+  excerpt         String?
+  content         Json
+  featured        Boolean    @default(false)
+  status          String     @default("draft") // "draft" | "published"
+  published_at    DateTime?
+  cover_image_url String?
+  categories      Category[]
+  created_at      DateTime   @default(now())
+  updated_at      DateTime   @updatedAt
+
+  @@unique([tenant_id, slug])
+}
+
+model Category {
+  id        String @id @default(cuid())
+  tenant_id String
+  tenant    Tenant @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  name      String
+  slug      String
+  posts     Post[]
+
+  @@unique([tenant_id, slug])
 }
 
 // Uploaded file (image, PDF lead magnet, ...) belonging to a tenant's site.

@@ -47,6 +47,37 @@ export async function fetchSitePage(host: string, slug: string): Promise<SitePag
   }
 }
 
+export interface PublicPostSummary {
+  slug: string
+  title: string
+  excerpt: string | null
+  featured: boolean
+  published_at: string | null
+  cover_image_url: string | null
+  categories: { name: string; slug: string }[]
+}
+
+export async function fetchPosts(host: string, category?: string): Promise<{ posts: PublicPostSummary[]; categories: { name: string; slug: string }[] } | null> {
+  try {
+    const url = `${INTERNAL_API}/api/public/posts?host=${encodeURIComponent(host)}${category ? `&category=${encodeURIComponent(category)}` : ''}`
+    const res = await fetch(url)
+    if (!res.ok) return null
+    return await res.json()
+  } catch {
+    return null
+  }
+}
+
+export async function fetchPost(host: string, slug: string): Promise<(PublicPostSummary & { content: any }) | null> {
+  try {
+    const res = await fetch(`${INTERNAL_API}/api/public/posts/${encodeURIComponent(slug)}?host=${encodeURIComponent(host)}`)
+    if (!res.ok) return null
+    return await res.json()
+  } catch {
+    return null
+  }
+}
+
 export function isPlatformHost(host: string): boolean {
   const platform = (process.env.PLATFORM_DOMAIN || 'localhost').split(':')[0]
   const bare = host.split(':')[0]

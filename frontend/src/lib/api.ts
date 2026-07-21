@@ -344,6 +344,59 @@ export async function deleteContact(tenantId: string, contactId: string) {
   return fetchJson(`/tenants/${tenantId}/contacts/${contactId}`, { method: 'DELETE' })
 }
 
+// Blog
+export async function getPosts(tenantId: string) {
+  return fetchJson(`/tenants/${tenantId}/posts`, { method: 'GET' })
+}
+
+export async function getPost(postId: string) {
+  return fetchJson(`/posts/${postId}`, { method: 'GET' })
+}
+
+export async function createPost(tenantId: string, data: { title: string; slug?: string; excerpt?: string; categoryIds?: string[] }) {
+  return fetchJson(`/tenants/${tenantId}/posts`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+}
+
+export async function updatePost(postId: string, data: any) {
+  return fetchJson(`/posts/${postId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+}
+
+export async function publishPost(postId: string) {
+  return fetchJson(`/posts/${postId}/publish`, { method: 'POST' })
+}
+
+export async function unpublishPost(postId: string) {
+  return fetchJson(`/posts/${postId}/unpublish`, { method: 'POST' })
+}
+
+export async function deletePost(postId: string) {
+  return fetchJson(`/posts/${postId}`, { method: 'DELETE' })
+}
+
+export async function getCategories(tenantId: string) {
+  return fetchJson(`/tenants/${tenantId}/categories`, { method: 'GET' })
+}
+
+export async function createCategory(tenantId: string, name: string) {
+  return fetchJson(`/tenants/${tenantId}/categories`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name }),
+  })
+}
+
+export async function deleteCategory(tenantId: string, categoryId: string) {
+  return fetchJson(`/tenants/${tenantId}/categories/${categoryId}`, { method: 'DELETE' })
+}
+
 // Tenant domain management
 export async function getTenantDomains(tenantId: string) {
   return fetchJson(`/tenants/${tenantId}/domains`, { method: 'GET' })
@@ -965,6 +1018,16 @@ export default {
   getFormSubmissions,
   getContacts,
   deleteContact,
+  getPosts,
+  getPost,
+  createPost,
+  updatePost,
+  publishPost,
+  unpublishPost,
+  deletePost,
+  getCategories,
+  createCategory,
+  deleteCategory,
   getSiteSettings,
   updateSiteSettings,
   getSitePages,

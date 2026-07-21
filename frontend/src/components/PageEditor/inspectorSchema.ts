@@ -112,6 +112,12 @@ export const BLOCK_INSPECTORS: Record<string, BlockInspectorSchema> = {
       },
     ],
   },
+  blogListing: {
+    fields: [
+      { key: 'heading', label: 'Heading', input: 'text' },
+      { key: 'limit', label: 'Number of posts', input: 'number', min: 1, max: 12 },
+    ],
+  },
   spacer: {
     fields: [{ key: 'height', label: 'Height (px)', input: 'number', min: 4, max: 400 }],
   },
