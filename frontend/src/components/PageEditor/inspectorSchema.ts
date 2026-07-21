@@ -112,6 +112,9 @@ export const BLOCK_INSPECTORS: Record<string, BlockInspectorSchema> = {
       },
     ],
   },
+  product: {
+    fields: [{ key: 'buttonLabel', label: 'Buy button label', input: 'text' }],
+  },
   blogListing: {
     fields: [
       { key: 'heading', label: 'Heading', input: 'text' },

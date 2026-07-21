@@ -147,6 +147,26 @@ const FormPicker: React.FC<{ value?: string; tenantId?: string; onChange: (formI
   )
 }
 
+const ProductPicker: React.FC<{ value?: string; tenantId?: string; onChange: (productId: string) => void }> = ({ value, tenantId, onChange }) => {
+  const [products, setProducts] = useState<{ id: string; name: string }[]>([])
+  useEffect(() => {
+    if (!tenantId) return
+    api.getProducts(tenantId).then((list: any) => setProducts(Array.isArray(list) ? list : [])).catch(() => setProducts([]))
+  }, [tenantId])
+  return (
+    <div className={styles.inspectorField}>
+      <label>Product</label>
+      <select value={value || ''} onChange={e => onChange(e.target.value)}>
+        <option value="">— Choose a product —</option>
+        {products.map(p => (
+          <option key={p.id} value={p.id}>{p.name}</option>
+        ))}
+      </select>
+      {tenantId && <p className={styles.fieldHelp}>Manage products under Website → Store.</p>}
+    </div>
+  )
+}
+
 const BlockInspector: React.FC<{ block: BlockNode; dispatch: DraftDispatch; tenantId?: string }> = ({ block, dispatch, tenantId }) => {
   const def = BLOCK_REGISTRY[block.type]
   const schema = BLOCK_INSPECTORS[block.type]
@@ -206,6 +226,10 @@ const BlockInspector: React.FC<{ block: BlockNode; dispatch: DraftDispatch; tena
 
       {block.type === 'form' && (
         <FormPicker value={config.formId} tenantId={tenantId} onChange={formId => patchConfig({ formId })} />
+      )}
+
+      {block.type === 'product' && (
+        <ProductPicker value={config.productId} tenantId={tenantId} onChange={productId => patchConfig({ productId })} />
       )}
 
       {(schema?.fields || []).map(f => (

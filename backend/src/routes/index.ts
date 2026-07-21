@@ -15,6 +15,7 @@ import { requireAuth as requireRoleAuth } from '../middleware/authGuard'
 import requireFeature from '../middleware/requireFeature'
 import siteController from '../controllers/siteController'
 import postController from '../controllers/postController'
+import commerceController from '../controllers/commerceController'
 import { authLimiter, inviteLimiter, formSubmitLimiter } from '../middleware/rateLimiters'
 import multer from 'multer'
 import assetController from '../controllers/assetController'
@@ -86,6 +87,20 @@ router.delete('/tenants/:tenantId/categories/:categoryId', requireRoleAuth(['adm
 // blog (public; feature-gated inside the controller)
 router.get('/public/posts', postController.listPublicPosts)
 router.get('/public/posts/:slug', postController.getPublicPost)
+
+// commerce (admin)
+router.get('/tenants/:tenantId/commerce-config', requireRoleAuth(['admin']), commerceController.getConfig)
+router.put('/tenants/:tenantId/commerce-config', requireRoleAuth(['admin']), commerceController.updateConfig)
+router.get('/tenants/:tenantId/products', requireRoleAuth(['admin']), commerceController.listProducts)
+router.post('/tenants/:tenantId/products', requireRoleAuth(['admin']), commerceController.createProduct)
+router.put('/products/:productId', requireRoleAuth(['admin']), commerceController.updateProduct)
+router.delete('/products/:productId', requireRoleAuth(['admin']), commerceController.deleteProduct)
+router.get('/tenants/:tenantId/orders', requireRoleAuth(['admin']), commerceController.listOrders)
+router.post('/tenants/:tenantId/orders/:orderId/status', requireRoleAuth(['admin']), commerceController.updateOrderStatus)
+
+// commerce (public; feature-gated in controller, CSRF exempt under /public/)
+router.get('/public/products/:productId', commerceController.getPublicProduct)
+router.post('/public/checkout', formSubmitLimiter, commerceController.checkout)
 
 // website builder: public form endpoints (no auth; CSRF exempt under /public/)
 router.get('/public/forms/:formId', formController.getPublicForm)

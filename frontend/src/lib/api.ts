@@ -397,6 +397,55 @@ export async function deleteCategory(tenantId: string, categoryId: string) {
   return fetchJson(`/tenants/${tenantId}/categories/${categoryId}`, { method: 'DELETE' })
 }
 
+// Commerce
+export async function getCommerceConfig(tenantId: string) {
+  return fetchJson(`/tenants/${tenantId}/commerce-config`, { method: 'GET' })
+}
+
+export async function updateCommerceConfig(tenantId: string, data: { stripe_secret_key?: string; stripe_publishable_key?: string; stripe_webhook_secret?: string; currency?: string }) {
+  return fetchJson(`/tenants/${tenantId}/commerce-config`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+}
+
+export async function getProducts(tenantId: string) {
+  return fetchJson(`/tenants/${tenantId}/products`, { method: 'GET' })
+}
+
+export async function createProduct(tenantId: string, data: any) {
+  return fetchJson(`/tenants/${tenantId}/products`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+}
+
+export async function updateProduct(productId: string, data: any) {
+  return fetchJson(`/products/${productId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+}
+
+export async function deleteProduct(productId: string) {
+  return fetchJson(`/products/${productId}`, { method: 'DELETE' })
+}
+
+export async function getOrders(tenantId: string) {
+  return fetchJson(`/tenants/${tenantId}/orders`, { method: 'GET' })
+}
+
+export async function updateOrderStatus(tenantId: string, orderId: string, status: string) {
+  return fetchJson(`/tenants/${tenantId}/orders/${orderId}/status`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status }),
+  })
+}
+
 // Tenant domain management
 export async function getTenantDomains(tenantId: string) {
   return fetchJson(`/tenants/${tenantId}/domains`, { method: 'GET' })
@@ -1018,6 +1067,14 @@ export default {
   getFormSubmissions,
   getContacts,
   deleteContact,
+  getCommerceConfig,
+  updateCommerceConfig,
+  getProducts,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+  getOrders,
+  updateOrderStatus,
   getPosts,
   getPost,
   createPost,

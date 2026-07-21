@@ -10,6 +10,7 @@ import SpacerDisplay, { DEFAULT_SPACER_CONFIG } from './display/SpacerDisplay'
 import DividerDisplay, { DEFAULT_DIVIDER_CONFIG } from './display/DividerDisplay'
 import FormDisplay, { DEFAULT_FORM_CONFIG } from './display/FormDisplay'
 import BlogListingDisplay, { DEFAULT_BLOG_LISTING_CONFIG } from './display/BlogListingDisplay'
+import ProductDisplay, { DEFAULT_PRODUCT_CONFIG } from './display/ProductDisplay'
 import QuizBlockDisplay from '../BlockEditor/blocks/QuizBlockDisplay'
 
 export interface BlockRenderContext {
@@ -101,6 +102,13 @@ export const BLOCK_REGISTRY: Record<string, BlockDefinition> = {
     surfaces: ['site'],
     defaults: { config: DEFAULT_BLOG_LISTING_CONFIG },
     Display: BlogListingDisplay,
+  },
+  product: {
+    label: 'Product',
+    icon: '🛒',
+    surfaces: ['site'],
+    defaults: { config: DEFAULT_PRODUCT_CONFIG },
+    Display: ProductDisplay,
   },
   quiz: {
     label: 'Quiz',

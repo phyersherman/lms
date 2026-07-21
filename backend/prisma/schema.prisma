@@ -38,6 +38,58 @@ model Tenant {
   contacts                Contact[]
   posts                   Post[]
   categories              Category[]
+  commerceConfig          CommerceConfig?
+  products                Product[]
+  orders                  Order[]
+}
+
+// Per-tenant Stripe configuration. Secret values are AES-encrypted at rest
+// (same pattern as EmailConfig.apiKey).
+model CommerceConfig {
+  id                     String  @id @default(cuid())
+  tenant_id              String  @unique
+  tenant                 Tenant  @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  stripe_secret_key      String? // encrypted
+  stripe_publishable_key String?
+  stripe_webhook_secret  String? // encrypted
+  currency               String  @default("usd")
+}
+
+// Sellable item (e.g. a book pre-order). quantity_tiers allows volume pricing:
+// [{ minQty: 1, unitPriceCents: 3500 }, { minQty: 2, unitPriceCents: 3200 }]
+model Product {
+  id             String   @id @default(cuid())
+  tenant_id      String
+  tenant         Tenant   @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  name           String
+  description    String?
+  price_cents    Int
+  currency       String   @default("usd")
+  quantity_tiers Json?
+  custom_fields  Json? // [{ key, label, type: text|textarea, required, placeholder }] e.g. personalization request
+  policy_text    String? // e.g. refund-until-shipment policy shown at checkout
+  image_urls     String[] @default([])
+  active         Boolean  @default(true)
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+  orders         Order[]
+}
+
+model Order {
+  id                String   @id @default(cuid())
+  tenant_id         String
+  tenant            Tenant   @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  product_id        String
+  product           Product  @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  email             String
+  quantity          Int
+  custom_data       Json? // values for the product's custom fields + shipping details
+  amount_cents      Int
+  currency          String   @default("usd")
+  stripe_session_id String?  @unique
+  status            String   @default("pending") // pending | paid | shipped | refunded | cancelled
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
 }
 
 // Blog post. Body uses the same JSON layout tree as Page so the visual

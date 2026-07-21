@@ -131,6 +131,7 @@ const TenantSitePage: React.FC = () => {
             <h1 style={{ margin: '12px 0 0 0', fontSize: 26 }}>🌐 Website</h1>
             <div style={{ display: 'flex', gap: 10 }}>
               <Link href={`/admin/tenants/${tenantId}/posts`} style={{ padding: '8px 14px', background: '#f1f5f9', border: '1px solid #e2e8f0', borderRadius: 6, textDecoration: 'none', color: '#334155', fontSize: 13, fontWeight: 600 }}>📰 Blog</Link>
+              <Link href={`/admin/tenants/${tenantId}/products`} style={{ padding: '8px 14px', background: '#f1f5f9', border: '1px solid #e2e8f0', borderRadius: 6, textDecoration: 'none', color: '#334155', fontSize: 13, fontWeight: 600 }}>🛒 Store</Link>
               <Link href={`/admin/tenants/${tenantId}/forms`} style={{ padding: '8px 14px', background: '#f1f5f9', border: '1px solid #e2e8f0', borderRadius: 6, textDecoration: 'none', color: '#334155', fontSize: 13, fontWeight: 600 }}>📋 Forms</Link>
               <Link href={`/admin/tenants/${tenantId}/contacts`} style={{ padding: '8px 14px', background: '#f1f5f9', border: '1px solid #e2e8f0', borderRadius: 6, textDecoration: 'none', color: '#334155', fontSize: 13, fontWeight: 600 }}>👥 Contacts</Link>
               <Link href={`/admin/tenants/${tenantId}/assets`} style={{ padding: '8px 14px', background: '#f1f5f9', border: '1px solid #e2e8f0', borderRadius: 6, textDecoration: 'none', color: '#334155', fontSize: 13, fontWeight: 600 }}>🗂 Files</Link>

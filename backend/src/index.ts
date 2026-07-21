@@ -7,11 +7,22 @@ import routes from './routes'
 import { tenantResolver } from './middleware/tenantResolver'
 import { syncDomains } from './services/domainSyncService'
 import { UPLOADS_DIR } from './services/storageService'
+import commerceController from './controllers/commerceController'
 import csurf from 'csurf'
 
 const app = express()
 
 app.use(helmet())
+
+// Stripe webhooks need the raw request body for signature verification, so
+// this route is mounted BEFORE express.json() (and is naturally CSRF-exempt —
+// it responds before the CSRF middleware is reached).
+app.post(
+  '/api/webhooks/stripe/:tenantId',
+  express.raw({ type: 'application/json' }),
+  (req, res) => void commerceController.webhook(req, res)
+)
+
 app.use(express.json())
 app.use(morgan('dev'))
 
