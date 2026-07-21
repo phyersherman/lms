@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import api from '../lib/api'
+import ImagePicker from './ImagePicker'
 
 interface Domain {
   id: string
@@ -141,8 +142,7 @@ const TenantDomainsBranding: React.FC<Props> = ({ tenantId, initialTheme }) => {
               </div>
             </div>
             <div style={{ flex: 1, minWidth: 240 }}>
-              <label style={label}>Logo URL</label>
-              <input value={logoUrl} onChange={e => setLogoUrl(e.target.value)} placeholder="https://.../logo.png" style={input} />
+              <ImagePicker label="Logo" value={logoUrl} onChange={setLogoUrl} tenantId={tenantId} />
             </div>
           </div>
           <button type="submit" disabled={savingTheme} style={{ ...primaryBtn, opacity: savingTheme ? 0.6 : 1 }}>

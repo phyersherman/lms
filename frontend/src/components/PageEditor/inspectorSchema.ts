@@ -6,7 +6,7 @@
 export interface FieldDef {
   key: string
   label: string
-  input: 'text' | 'textarea' | 'url' | 'number' | 'color' | 'select' | 'checkbox'
+  input: 'text' | 'textarea' | 'url' | 'number' | 'color' | 'select' | 'checkbox' | 'image'
   options?: { value: string; label: string }[]
   placeholder?: string
   min?: number
@@ -44,7 +44,7 @@ export const BLOCK_INSPECTORS: Record<string, BlockInspectorSchema> = {
         ],
       },
       { key: 'backgroundColor', label: 'Background color', input: 'color' },
-      { key: 'backgroundImageUrl', label: 'Background image URL', input: 'url' },
+      { key: 'backgroundImageUrl', label: 'Background image', input: 'image' },
       { key: 'overlayOpacity', label: 'Image overlay (0–1)', input: 'number', min: 0, max: 1 },
       { key: 'textColor', label: 'Text color', input: 'color' },
     ],

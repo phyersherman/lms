@@ -5,6 +5,7 @@ import { BLOCK_REGISTRY } from '../blocks/registry'
 import { BLOCK_INSPECTORS, COLUMN_LAYOUTS, FieldDef } from './inspectorSchema'
 import { DraftDispatch, Selection } from './usePageDraft'
 import QuizBlock from '../BlockEditor/blocks/QuizBlock'
+import ImagePicker from '../ImagePicker'
 import styles from './PageEditor.module.css'
 
 interface Props {
@@ -26,9 +27,16 @@ const Field: React.FC<{
   def: FieldDef
   value: any
   onChange: (value: any) => void
-}> = ({ def, value, onChange }) => {
+  tenantId?: string
+}> = ({ def, value, onChange, tenantId }) => {
   const id = `insp-${def.key}`
   switch (def.input) {
+    case 'image':
+      return (
+        <div className={styles.inspectorField}>
+          <ImagePicker label={def.label} value={value || ''} onChange={onChange} tenantId={tenantId} />
+        </div>
+      )
     case 'checkbox':
       return (
         <label className={styles.inspectorCheckbox} htmlFor={id}>
@@ -201,7 +209,18 @@ const BlockInspector: React.FC<{ block: BlockNode; dispatch: DraftDispatch; tena
         </button>
       </div>
 
-      {schema?.content && (
+      {block.type === 'image' && (
+        <div className={styles.inspectorField}>
+          <ImagePicker
+            label="Image"
+            value={block.content || ''}
+            onChange={url => dispatch({ type: 'UPDATE_BLOCK', blockId: block.id, updates: { content: url } })}
+            tenantId={tenantId}
+          />
+        </div>
+      )}
+
+      {schema?.content && block.type !== 'image' && (
         <div className={styles.inspectorField}>
           <label>{schema.content.label}</label>
           {schema.content.input === 'textarea' ? (
@@ -233,7 +252,7 @@ const BlockInspector: React.FC<{ block: BlockNode; dispatch: DraftDispatch; tena
       )}
 
       {(schema?.fields || []).map(f => (
-        <Field key={f.key} def={f} value={config[f.key]} onChange={v => patchConfig({ [f.key]: v })} />
+        <Field key={f.key} def={f} value={config[f.key]} onChange={v => patchConfig({ [f.key]: v })} tenantId={tenantId} />
       ))}
 
       {block.placement && (() => {
@@ -321,7 +340,7 @@ const BlockInspector: React.FC<{ block: BlockNode; dispatch: DraftDispatch; tena
   )
 }
 
-const SectionInspector: React.FC<{ section: PageSection; dispatch: DraftDispatch }> = ({ section, dispatch }) => {
+const SectionInspector: React.FC<{ section: PageSection; dispatch: DraftDispatch; tenantId?: string }> = ({ section, dispatch, tenantId }) => {
   const settings = section.settings || {}
   const currentLayout = section.columns.map(c => Math.round(c.widthFraction * 100)).join('/')
 
@@ -390,9 +409,10 @@ const SectionInspector: React.FC<{ section: PageSection; dispatch: DraftDispatch
         onChange={v => dispatch({ type: 'UPDATE_SECTION_SETTINGS', sectionId: section.id, settings: { backgroundColor: v } })}
       />
       <Field
-        def={{ key: 'backgroundImageUrl', label: 'Background image URL', input: 'url' }}
+        def={{ key: 'backgroundImageUrl', label: 'Background image', input: 'image' }}
         value={settings.backgroundImageUrl}
         onChange={v => dispatch({ type: 'UPDATE_SECTION_SETTINGS', sectionId: section.id, settings: { backgroundImageUrl: v } })}
+        tenantId={tenantId}
       />
       <Field
         def={{ key: 'fullWidth', label: 'Full width content', input: 'checkbox' }}
@@ -417,7 +437,7 @@ const Inspector: React.FC<Props> = ({ content, selection, dispatch, tenantId }) 
     }
   } else if (selection?.kind === 'section') {
     const section = content.sections.find(s => s.id === selection.id)
-    if (section) body = <SectionInspector section={section} dispatch={dispatch} />
+    if (section) body = <SectionInspector section={section} dispatch={dispatch} tenantId={tenantId} />
   }
 
   return <aside className={styles.inspector}>{body}</aside>
