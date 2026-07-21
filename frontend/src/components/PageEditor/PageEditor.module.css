@@ -1,0 +1,444 @@
+.editorRoot {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: #f1f5f9;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 16px;
+  background: #0f172a;
+  color: #e2e8f0;
+  flex-wrap: wrap;
+}
+
+.topbarLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+}
+
+.topbarRight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.topbarButton {
+  background: #1e293b;
+  color: #e2e8f0;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.topbarButton:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.saveState {
+  font-size: 12px;
+  opacity: 0.8;
+  min-width: 64px;
+  text-align: right;
+}
+
+.publishButton {
+  background: #0ea5a4;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.publishButton:disabled {
+  opacity: 0.6;
+}
+
+.deviceToggle {
+  display: flex;
+  gap: 4px;
+  background: #1e293b;
+  border-radius: 8px;
+  padding: 3px;
+}
+
+.deviceToggle button {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  padding: 5px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.deviceToggle .deviceActive {
+  background: #334155;
+  color: white;
+}
+
+.workArea {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.canvasScroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+.canvas {
+  margin: 0 auto;
+  background: white;
+  min-height: 70vh;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: max-width 0.2s ease;
+}
+
+.addSectionRow {
+  padding: 24px;
+  text-align: center;
+  border-top: 1px dashed #e2e8f0;
+}
+
+/* ---- sections ---- */
+
+.sectionShell {
+  position: relative;
+  border: 1px solid transparent;
+}
+
+.sectionShell:hover {
+  border-color: #cbd5e1;
+}
+
+.sectionShellSelected {
+  border-color: #0ea5a4 !important;
+}
+
+.sectionToolbar {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  z-index: 20;
+  display: none;
+  gap: 4px;
+  background: #0f172a;
+  border-radius: 6px;
+  padding: 3px 6px;
+}
+
+.sectionShell:hover .sectionToolbar,
+.sectionShellSelected .sectionToolbar {
+  display: flex;
+}
+
+.sectionToolButton {
+  background: transparent;
+  border: none;
+  color: #e2e8f0;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 2px 6px;
+}
+
+.sectionToolButton:hover {
+  color: #5eead4;
+}
+
+/* ---- columns ---- */
+
+.columnDrop {
+  min-height: 60px;
+  border-radius: 6px;
+}
+
+.columnDropOver {
+  outline: 2px dashed #0ea5a4;
+  outline-offset: 2px;
+}
+
+.columnBlocks {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 12px;
+}
+
+/* ---- blocks ---- */
+
+.blockShell {
+  position: relative;
+  border: 1px solid transparent;
+  border-radius: 6px;
+}
+
+.blockShell:hover {
+  border-color: #cbd5e1;
+}
+
+.blockShellSelected {
+  border-color: #0ea5a4 !important;
+  box-shadow: 0 0 0 3px rgba(14, 165, 164, 0.15);
+}
+
+.blockToolbar {
+  position: absolute;
+  top: -14px;
+  right: 8px;
+  z-index: 15;
+  display: none;
+  align-items: center;
+  gap: 6px;
+  background: #0f172a;
+  color: #e2e8f0;
+  border-radius: 6px;
+  padding: 2px 6px;
+  font-size: 12px;
+}
+
+.blockShell:hover .blockToolbar,
+.blockShellSelected .blockToolbar {
+  display: flex;
+}
+
+.blockLabel {
+  font-size: 11px;
+  opacity: 0.85;
+  white-space: nowrap;
+}
+
+.dragHandle {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: grab;
+  font-size: 13px;
+  padding: 2px 4px;
+}
+
+.dragHandle:active {
+  cursor: grabbing;
+}
+
+.blockDelete {
+  background: transparent;
+  border: none;
+  color: #f87171;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 2px 4px;
+}
+
+.blockNoninteractive {
+  pointer-events: none;
+  opacity: 0.9;
+}
+
+/* ---- add block menu ---- */
+
+.addBlockWrap {
+  position: relative;
+  text-align: center;
+  padding-bottom: 8px;
+}
+
+.addBlockButton {
+  background: white;
+  border: 1px dashed #94a3b8;
+  color: #475569;
+  border-radius: 6px;
+  padding: 6px 14px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.addBlockButton:hover {
+  border-color: #0ea5a4;
+  color: #0ea5a4;
+}
+
+.addBlockMenu {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  padding: 8px;
+  z-index: 50;
+  width: 280px;
+}
+
+.addBlockItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 6px;
+  cursor: pointer;
+  font-size: 12px;
+  color: #334155;
+}
+
+.addBlockItem:hover {
+  background: #f1f5f9;
+}
+
+.addBlockIcon {
+  font-size: 20px;
+}
+
+/* ---- inspector ---- */
+
+.inspector {
+  width: 300px;
+  flex-shrink: 0;
+  background: white;
+  border-left: 1px solid #e2e8f0;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.inspectorEmpty {
+  color: #94a3b8;
+  font-size: 13px;
+  text-align: center;
+  margin-top: 40px;
+}
+
+.inspectorTitle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 16px;
+  color: #0f172a;
+}
+
+.inspectorField {
+  margin-bottom: 14px;
+}
+
+.inspectorField label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 4px;
+}
+
+.inspectorField input[type='text'],
+.inspectorField input[type='number'],
+.inspectorField select,
+.inspectorField textarea {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 13px;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.inspectorCheckbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #334155;
+  margin-bottom: 12px;
+  cursor: pointer;
+}
+
+.colorRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.colorRow input[type='color'] {
+  width: 36px;
+  height: 32px;
+  padding: 2px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: white;
+}
+
+.colorRow input[type='text'] {
+  flex: 1;
+}
+
+.fieldHelp {
+  font-size: 11px;
+  color: #94a3b8;
+  margin: 4px 0 0 0;
+}
+
+.dangerLink {
+  background: none;
+  border: none;
+  color: #dc2626;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.smallButton {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  color: #334155;
+}
+
+.heroButtonRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto auto;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.heroButtonRow input,
+.heroButtonRow select {
+  padding: 5px 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 12px;
+  min-width: 0;
+}
+
+.heroButtonRow button {
+  background: none;
+  border: none;
+  color: #dc2626;
+  cursor: pointer;
+}

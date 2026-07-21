@@ -103,7 +103,7 @@ const createCourse = async (data) => {
 const listGlobalCourses = async () => {
     return client_1.default.course.findMany({
         where: { tenant_id: null },
-        include: { chapters: { include: { modules: { include: { blocks: true } } } } }
+        include: { chapters: { orderBy: { order_index: 'asc' }, include: { modules: { orderBy: { order_index: 'asc' }, include: { blocks: { orderBy: { order_index: 'asc' } } } } } } }
     });
 };
 /**
@@ -112,7 +112,7 @@ const listGlobalCourses = async () => {
 const listByTenant = async (tenant_id) => {
     return client_1.default.course.findMany({
         where: { tenant_id },
-        include: { chapters: { include: { modules: { include: { blocks: true } } } } }
+        include: { chapters: { orderBy: { order_index: 'asc' }, include: { modules: { orderBy: { order_index: 'asc' }, include: { blocks: { orderBy: { order_index: 'asc' } } } } } } }
     });
 };
 /**
@@ -121,7 +121,7 @@ const listByTenant = async (tenant_id) => {
 const getById = async (id) => {
     return client_1.default.course.findUnique({
         where: { id },
-        include: { chapters: { include: { modules: { include: { blocks: true } } } } }
+        include: { chapters: { orderBy: { order_index: 'asc' }, include: { modules: { orderBy: { order_index: 'asc' }, include: { blocks: { orderBy: { order_index: 'asc' } } } } } } }
     });
 };
 /**

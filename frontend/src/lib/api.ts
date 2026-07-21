@@ -1,4 +1,7 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'
+// Same-origin by default: every site domain serves the frontend and proxies /api
+// to the backend (Next rewrite in dev, Traefik in production). Set
+// NEXT_PUBLIC_API_URL only for legacy cross-origin setups.
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api'
 
 let csrfToken: string | null = null
 
@@ -207,7 +210,7 @@ export async function getTenant(tenantId: string) {
   return fetchJson(`/tenants/${tenantId}`, { method: 'GET' })
 }
 
-export async function createTenant(data: { name: string; domain?: string; theme_config?: any }) {
+export async function createTenant(data: { name: string; theme?: { primaryColor?: string; secondaryColor?: string; logoUrl?: string }; domains?: { host: string; isPrimary?: boolean }[] }) {
   return fetchJson('/tenants', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -215,7 +218,7 @@ export async function createTenant(data: { name: string; domain?: string; theme_
   })
 }
 
-export async function updateTenant(tenantId: string, data: { name?: string; domain?: string; theme_config?: any; certificateSignature?: string | null }) {
+export async function updateTenant(tenantId: string, data: { name?: string; theme?: { primaryColor?: string; secondaryColor?: string; logoUrl?: string }; certificateSignature?: string | null }) {
   return fetchJson(`/tenants/${tenantId}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
@@ -225,6 +228,239 @@ export async function updateTenant(tenantId: string, data: { name?: string; doma
 
 export async function deleteTenant(tenantId: string) {
   return fetchJson(`/tenants/${tenantId}`, { method: 'DELETE' })
+}
+
+// Website builder: site settings + pages
+export async function getSiteSettings(tenantId: string) {
+  return fetchJson(`/tenants/${tenantId}/site`, { method: 'GET' })
+}
+
+export async function updateSiteSettings(tenantId: string, data: { theme?: any; header?: any; footer?: any; features?: any; homepage_mode?: string }) {
+  return fetchJson(`/tenants/${tenantId}/site`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+}
+
+export async function getSitePages(tenantId: string) {
+  return fetchJson(`/tenants/${tenantId}/pages`, { method: 'GET' })
+}
+
+export async function createSitePage(tenantId: string, data: { title: string; slug: string; seo_title?: string; seo_description?: string }) {
+  return fetchJson(`/tenants/${tenantId}/pages`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+}
+
+export async function getSitePage(pageId: string) {
+  return fetchJson(`/pages/${pageId}`, { method: 'GET' })
+}
+
+export async function updateSitePage(pageId: string, data: { title?: string; slug?: string; seo_title?: string | null; seo_description?: string | null; og_image_url?: string | null; draft_content?: any }) {
+  return fetchJson(`/pages/${pageId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+}
+
+export async function publishSitePage(pageId: string) {
+  return fetchJson(`/pages/${pageId}/publish`, { method: 'POST' })
+}
+
+export async function unpublishSitePage(pageId: string) {
+  return fetchJson(`/pages/${pageId}/unpublish`, { method: 'POST' })
+}
+
+export async function deleteSitePage(pageId: string) {
+  return fetchJson(`/pages/${pageId}`, { method: 'DELETE' })
+}
+
+// Website builder: assets
+export async function getAssets(tenantId: string) {
+  return fetchJson(`/tenants/${tenantId}/assets`, { method: 'GET' })
+}
+
+export async function uploadAsset(tenantId: string, file: File) {
+  const fd = new FormData()
+  fd.append('file', file)
+  // fetchJson would set JSON headers; FormData needs its own boundary header
+  const res = await fetch(`${API_BASE}/tenants/${tenantId}/assets`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: csrfToken ? { 'X-CSRF-Token': csrfToken } : undefined,
+    body: fd,
+  })
+  const payload = await res.json()
+  if (!res.ok) throw new Error(payload.error || 'Upload failed')
+  return payload
+}
+
+export async function deleteAsset(tenantId: string, assetId: string) {
+  return fetchJson(`/tenants/${tenantId}/assets/${assetId}`, { method: 'DELETE' })
+}
+
+// Website builder: forms + contacts
+export async function getForms(tenantId: string) {
+  return fetchJson(`/tenants/${tenantId}/forms`, { method: 'GET' })
+}
+
+export async function getForm(formId: string) {
+  return fetchJson(`/forms/${formId}`, { method: 'GET' })
+}
+
+export async function createForm(tenantId: string, data: any) {
+  return fetchJson(`/tenants/${tenantId}/forms`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+}
+
+export async function updateForm(formId: string, data: any) {
+  return fetchJson(`/forms/${formId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+}
+
+export async function deleteForm(formId: string) {
+  return fetchJson(`/forms/${formId}`, { method: 'DELETE' })
+}
+
+export async function getFormSubmissions(formId: string) {
+  return fetchJson(`/forms/${formId}/submissions`, { method: 'GET' })
+}
+
+export async function getContacts(tenantId: string) {
+  return fetchJson(`/tenants/${tenantId}/contacts`, { method: 'GET' })
+}
+
+export async function deleteContact(tenantId: string, contactId: string) {
+  return fetchJson(`/tenants/${tenantId}/contacts/${contactId}`, { method: 'DELETE' })
+}
+
+// Blog
+export async function getPosts(tenantId: string) {
+  return fetchJson(`/tenants/${tenantId}/posts`, { method: 'GET' })
+}
+
+export async function getPost(postId: string) {
+  return fetchJson(`/posts/${postId}`, { method: 'GET' })
+}
+
+export async function createPost(tenantId: string, data: { title: string; slug?: string; excerpt?: string; categoryIds?: string[] }) {
+  return fetchJson(`/tenants/${tenantId}/posts`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+}
+
+export async function updatePost(postId: string, data: any) {
+  return fetchJson(`/posts/${postId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+}
+
+export async function publishPost(postId: string) {
+  return fetchJson(`/posts/${postId}/publish`, { method: 'POST' })
+}
+
+export async function unpublishPost(postId: string) {
+  return fetchJson(`/posts/${postId}/unpublish`, { method: 'POST' })
+}
+
+export async function deletePost(postId: string) {
+  return fetchJson(`/posts/${postId}`, { method: 'DELETE' })
+}
+
+export async function getCategories(tenantId: string) {
+  return fetchJson(`/tenants/${tenantId}/categories`, { method: 'GET' })
+}
+
+export async function createCategory(tenantId: string, name: string) {
+  return fetchJson(`/tenants/${tenantId}/categories`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name }),
+  })
+}
+
+export async function deleteCategory(tenantId: string, categoryId: string) {
+  return fetchJson(`/tenants/${tenantId}/categories/${categoryId}`, { method: 'DELETE' })
+}
+
+// Commerce
+export async function getCommerceConfig(tenantId: string) {
+  return fetchJson(`/tenants/${tenantId}/commerce-config`, { method: 'GET' })
+}
+
+export async function updateCommerceConfig(tenantId: string, data: { stripe_secret_key?: string; stripe_publishable_key?: string; stripe_webhook_secret?: string; currency?: string }) {
+  return fetchJson(`/tenants/${tenantId}/commerce-config`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+}
+
+export async function getProducts(tenantId: string) {
+  return fetchJson(`/tenants/${tenantId}/products`, { method: 'GET' })
+}
+
+export async function createProduct(tenantId: string, data: any) {
+  return fetchJson(`/tenants/${tenantId}/products`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+}
+
+export async function updateProduct(productId: string, data: any) {
+  return fetchJson(`/products/${productId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+}
+
+export async function deleteProduct(productId: string) {
+  return fetchJson(`/products/${productId}`, { method: 'DELETE' })
+}
+
+export async function getOrders(tenantId: string) {
+  return fetchJson(`/tenants/${tenantId}/orders`, { method: 'GET' })
+}
+
+export async function updateOrderStatus(tenantId: string, orderId: string, status: string) {
+  return fetchJson(`/tenants/${tenantId}/orders/${orderId}/status`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status }),
+  })
+}
+
+// Tenant domain management
+export async function getTenantDomains(tenantId: string) {
+  return fetchJson(`/tenants/${tenantId}/domains`, { method: 'GET' })
+}
+
+export async function addTenantDomain(tenantId: string, host: string, isPrimary = false) {
+  return fetchJson(`/tenants/${tenantId}/domains`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ host, isPrimary }),
+  })
+}
+
+export async function removeTenantDomain(tenantId: string, domainId: string) {
+  return fetchJson(`/tenants/${tenantId}/domains/${domainId}`, { method: 'DELETE' })
 }
 
 // User management
@@ -817,6 +1053,47 @@ export default {
   createTenant,
   updateTenant,
   deleteTenant,
+  getTenantDomains,
+  addTenantDomain,
+  removeTenantDomain,
+  getAssets,
+  uploadAsset,
+  deleteAsset,
+  getForms,
+  getForm,
+  createForm,
+  updateForm,
+  deleteForm,
+  getFormSubmissions,
+  getContacts,
+  deleteContact,
+  getCommerceConfig,
+  updateCommerceConfig,
+  getProducts,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+  getOrders,
+  updateOrderStatus,
+  getPosts,
+  getPost,
+  createPost,
+  updatePost,
+  publishPost,
+  unpublishPost,
+  deletePost,
+  getCategories,
+  createCategory,
+  deleteCategory,
+  getSiteSettings,
+  updateSiteSettings,
+  getSitePages,
+  createSitePage,
+  getSitePage,
+  updateSitePage,
+  publishSitePage,
+  unpublishSitePage,
+  deleteSitePage,
   // User management
   getUsers,
   getUser,

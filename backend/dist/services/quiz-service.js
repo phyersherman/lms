@@ -35,19 +35,36 @@ const submitQuizAttempt = async (submission) => {
     const questions = quizConfig.questions || [];
     let correctCount = 0;
     let totalPoints = 0;
-    questions.forEach((question) => {
+    questions.forEach((question, idx) => {
         const points = question.points || 1;
         totalPoints += points;
-        const userAnswer = submission.answers[question.id];
-        let isCorrect = false;
-        if (question.type === 'multiple-choice' || question.type === 'true-false') {
-            isCorrect = userAnswer === question.correctAnswer;
+        // Normalize question ID to match frontend normalization
+        const questionId = question.id || `q${idx + 1}`;
+        const userAnswer = submission.answers[questionId];
+        // Normalize correct answer — handle alternate field names
+        let correctAnswer = question.correctAnswer;
+        if (correctAnswer === undefined && question.correct !== undefined && question.options) {
+            if (typeof question.correct === 'number' && question.options[question.correct] !== undefined) {
+                correctAnswer = question.options[question.correct];
+            }
+            else {
+                correctAnswer = String(question.correct);
+            }
         }
-        else if (question.type === 'short-answer') {
-            // Case-insensitive comparison for short answers
+        if (correctAnswer === undefined && question.answer !== undefined) {
+            correctAnswer = question.answer;
+        }
+        // Normalize type
+        const rawType = (question.type || 'multiple-choice').toLowerCase().replace(/_/g, '-');
+        let isCorrect = false;
+        if (rawType === 'multiple-choice' || rawType === 'true-false' || rawType === 'truefalse') {
+            isCorrect = userAnswer === correctAnswer ||
+                (Array.isArray(correctAnswer) && correctAnswer.includes(userAnswer));
+        }
+        else if (rawType === 'short-answer' || rawType === 'shortanswer') {
             isCorrect =
                 userAnswer?.toLowerCase().trim() ===
-                    question.correctAnswer?.toLowerCase().trim();
+                    correctAnswer?.toLowerCase().trim();
         }
         if (isCorrect) {
             correctCount += points;
@@ -154,18 +171,30 @@ const isModuleAccessible = async (moduleId, userId, courseId) => {
     // Find current module index and get previous
     const currentIndex = allModules.findIndex((m) => m.id === moduleId);
     const previousModule = currentIndex > 0 ? allModules[currentIndex - 1] : null;
-    // Check if PREVIOUS module requires quiz pass to continue to THIS module
-    if (previousModule && previousModule.requires_quiz_pass_to_continue) {
-        const quizBlock = previousModule.blocks.find((b) => b.type === 'quiz');
-        if (quizBlock) {
+    // First module is always accessible
+    if (previousModule) {
+        // Enforce sequential order: previous module must be completed
+        const prevCompletion = await client_1.default.moduleCompletion.findFirst({
+            where: {
+                moduleId: previousModule.id,
+                userId,
+                courseId,
+            },
+        });
+        if (!prevCompletion) {
+            return {
+                accessible: false,
+                reason: `Complete "${previousModule.title}" first.`,
+            };
+        }
+        // Check if previous module has any quiz blocks that must be passed
+        const prevQuizBlocks = previousModule.blocks.filter((b) => b.type === 'quiz');
+        for (const quizBlock of prevQuizBlocks) {
             const passedAttempt = await client_1.default.quizAttempt.findFirst({
                 where: {
                     blockId: quizBlock.id,
                     userId,
                     passed: true,
-                },
-                orderBy: {
-                    submittedAt: 'desc',
                 },
             });
             if (!passedAttempt) {

@@ -5,27 +5,42 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import routes from './routes'
 import { tenantResolver } from './middleware/tenantResolver'
+import { syncDomains } from './services/domainSyncService'
+import { UPLOADS_DIR } from './services/storageService'
+import commerceController from './controllers/commerceController'
 import csurf from 'csurf'
 
 const app = express()
 
 app.use(helmet())
+
+// Stripe webhooks need the raw request body for signature verification, so
+// this route is mounted BEFORE express.json() (and is naturally CSRF-exempt —
+// it responds before the CSRF middleware is reached).
+app.post(
+  '/api/webhooks/stripe/:tenantId',
+  express.raw({ type: 'application/json' }),
+  (req, res) => void commerceController.webhook(req, res)
+)
+
 app.use(express.json())
 app.use(morgan('dev'))
 
-// CORS: allow one or more frontend origins (configurable)
-// Set FRONTEND_ORIGINS to a comma-separated list like: http://localhost:3000,http://127.0.0.1:3000
-const FRONTEND_ORIGINS = (process.env.FRONTEND_ORIGINS || 'http://localhost:3000').split(',').map(s => s.trim())
-app.use(cors({
-  origin: (origin, callback) => {
-    // allow requests with no origin (e.g., curl, mobile clients)
-    if (!origin) return callback(null, true)
-    if (FRONTEND_ORIGINS.includes(origin)) return callback(null, true)
-    return callback(new Error('Not allowed by CORS'))
-  },
-  credentials: true
-}))
-console.log('Allowed frontend origins:', FRONTEND_ORIGINS)
+// The app is served same-origin on every site domain (Next rewrite in dev,
+// Traefik path routing in production), so CORS headers are not needed. Legacy
+// cross-origin deployments can still opt in by setting FRONTEND_ORIGINS.
+if (process.env.FRONTEND_ORIGINS) {
+  const FRONTEND_ORIGINS = process.env.FRONTEND_ORIGINS.split(',').map(s => s.trim())
+  app.use(cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true)
+      if (FRONTEND_ORIGINS.includes(origin)) return callback(null, true)
+      return callback(new Error('Not allowed by CORS'))
+    },
+    credentials: true
+  }))
+  console.log('Allowed frontend origins:', FRONTEND_ORIGINS)
+}
 app.use(cookieParser())
 
 // CSRF protection using double-submit cookie via `csurf`.
@@ -55,9 +70,14 @@ app.set('trust proxy', 1)
 // multi-tenant resolver middleware: sets req.tenantId
 app.use(tenantResolver)
 
+// public uploaded assets (images, etc.) — long cache, filenames are random
+app.use('/api/uploads', express.static(UPLOADS_DIR, { maxAge: '7d', index: false }))
+
 app.use('/api', routes)
 
 const PORT = process.env.PORT || 4000
 app.listen(PORT, () => {
   console.log(`LMS backend listening on port ${PORT}`)
+  // regenerate Traefik routes for customer domains on boot (no-op in dev)
+  void syncDomains()
 })

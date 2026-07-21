@@ -28,7 +28,7 @@ exports.createModule = createModule;
 const getModuleById = async (id) => {
     return client_1.default.module.findUnique({
         where: { id },
-        include: { blocks: true },
+        include: { blocks: { orderBy: { order_index: 'asc' } } },
     });
 };
 exports.getModuleById = getModuleById;

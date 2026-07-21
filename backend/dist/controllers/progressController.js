@@ -8,6 +8,7 @@ const progressService_1 = __importDefault(require("../services/progressService")
 /**
  * POST /modules/:moduleId/complete
  * Mark a module as completed
+ * Also handles auto-completing chapters and courses, and returns next chapter for navigation
  */
 const completeModule = async (req, res) => {
     try {
@@ -22,11 +23,20 @@ const completeModule = async (req, res) => {
             return res.status(400).json({ error: 'Missing moduleId or courseId' });
         }
         const completion = await progressService_1.default.completeModule(moduleId, userId, courseId, tenantId);
-        res.json(completion);
+        // Return completion data along with chapter/course completion info
+        res.json({
+            success: true,
+            moduleCompletion: completion,
+            // Client can use these to handle UI navigation and celebrations
+            chapterCompleted: completion.isLastModuleInChapter,
+            nextChapter: completion.nextChapter,
+            courseCompleted: completion.courseCompleted,
+        });
     }
     catch (error) {
         console.error('Error completing module:', error);
-        res.status(500).json({ error: error.message || 'Failed to complete module' });
+        const status = error.message?.includes('must pass') ? 400 : 500;
+        res.status(status).json({ error: error.message || 'Failed to complete module' });
     }
 };
 exports.completeModule = completeModule;
@@ -87,13 +97,14 @@ const getCourseProgress = async (req, res) => {
     try {
         const courseId = Array.isArray(req.params.courseId) ? req.params.courseId[0] : req.params.courseId;
         const userId = req.user?.id;
-        if (!userId) {
+        const tenantId = req.user?.tenantId;
+        if (!userId || !tenantId) {
             return res.status(401).json({ error: 'Unauthorized' });
         }
         if (!courseId) {
             return res.status(400).json({ error: 'Missing courseId' });
         }
-        const progress = await progressService_1.default.getCourseProgress(courseId, userId);
+        const progress = await progressService_1.default.getCourseProgress(courseId, userId, tenantId);
         res.json(progress);
     }
     catch (error) {

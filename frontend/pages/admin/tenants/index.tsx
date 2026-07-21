@@ -11,7 +11,7 @@ import styles from '../../../styles/admin-table.module.css'
 interface Tenant {
   id: string
   name: string
-  domain?: string
+  domains?: { id: string; host: string; isPrimary: boolean }[]
 }
 
 const TenantsPage: React.FC = () => {
@@ -73,9 +73,12 @@ const TenantsPage: React.FC = () => {
       render: (value) => <strong>{value}</strong>,
     },
     {
-      key: 'domain',
-      header: 'Domain',
-      render: (value) => value || '—',
+      key: 'domains',
+      header: 'Domains',
+      render: (value) =>
+        Array.isArray(value) && value.length > 0
+          ? value.map((d: any) => d.host).join(', ')
+          : '—',
     },
   ]
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import AdminLayout from '../../../src/components/AdminLayout'
+import TenantDomainsBranding from '../../../src/components/TenantDomainsBranding'
 import { useAuth } from '../../../src/auth/AuthProvider'
 import api from '../../../src/lib/api'
 import styles from '../../../styles/admin-table.module.css'
@@ -12,6 +13,9 @@ interface Tenant {
   domains: any[]
   defaultLocale: string
   certificateSignature?: string | null
+  primaryColor?: string | null
+  secondaryColor?: string | null
+  logoUrl?: string | null
 }
 
 interface Course {
@@ -157,7 +161,7 @@ const TenantDetailPage: React.FC = () => {
               <p style={{ margin: 0, color: '#666', fontSize: 14 }}>Tenant ID: {tenant.id}</p>
               {tenant.domains && tenant.domains.length > 0 && (
                 <p style={{ margin: '8px 0 0 0', color: '#666', fontSize: 14 }}>
-                  Domain: {tenant.domains[0]?.host || 'Not set'}
+                  {tenant.domains.map((d: any) => d.host).join(', ')}
                 </p>
               )}
             </div>
@@ -178,6 +182,26 @@ const TenantDetailPage: React.FC = () => {
             overflowX: 'auto',
             flexWrap: 'wrap'
           }}>
+            <Link
+              href={`/admin/tenants/${tenantId}/site`}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 12px',
+                background: router.pathname.includes('/site') ? 'linear-gradient(135deg, #0ea5a4 0%, #0f766e 100%)' : '#f1f5f9',
+                color: router.pathname.includes('/site') ? 'white' : '#334155',
+                textDecoration: 'none',
+                borderRadius: '6px',
+                fontSize: '13px',
+                fontWeight: 600,
+                transition: 'all 0.2s',
+                border: router.pathname.includes('/site') ? 'none' : '1px solid #e2e8f0',
+              }}
+            >
+              <span>🌐</span>
+              <span>Website</span>
+            </Link>
             <Link
               href={`/admin/tenants/${tenantId}/users`}
               style={{
@@ -393,6 +417,12 @@ const TenantDetailPage: React.FC = () => {
             {error}
           </div>
         )}
+
+        {/* Domains & Branding */}
+        <TenantDomainsBranding
+          tenantId={tenantId as string}
+          initialTheme={{ primaryColor: tenant.primaryColor, secondaryColor: tenant.secondaryColor, logoUrl: tenant.logoUrl }}
+        />
 
         {/* Analytics Section */}
         {analyticsLoading ? (

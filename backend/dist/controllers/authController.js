@@ -38,6 +38,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const authService_1 = __importDefault(require("../services/authService"));
 const emailService = __importStar(require("../services/emailService"));
+const loginAttemptTracker_1 = require("../middleware/loginAttemptTracker");
 function cookieOptions(maxAgeDays) {
     return {
         httpOnly: true,
@@ -52,10 +53,35 @@ const login = async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password)
         return res.status(400).json({ error: 'email and password required' });
+    // Check if user is rate limited
+    if ((0, loginAttemptTracker_1.isRateLimited)(email)) {
+        const resetTime = (0, loginAttemptTracker_1.getResetTime)(email);
+        return res.status(429).json({
+            error: 'Too many failed login attempts',
+            rateLimitInfo: {
+                remainingAttempts: 0,
+                resetTimeSeconds: resetTime,
+                message: `Too many failed attempts. Please try again in ${resetTime} seconds.`
+            }
+        });
+    }
     // Pass tenantId from tenantResolver middleware (if available)
     const result = await authService_1.default.authenticate(email, password, req.tenantId);
-    if (!result)
-        return res.status(401).json({ error: 'invalid credentials' });
+    if (!result) {
+        (0, loginAttemptTracker_1.recordFailedAttempt)(email);
+        const remainingAttempts = (0, loginAttemptTracker_1.getRemainingAttempts)(email);
+        return res.status(401).json({
+            error: 'invalid credentials',
+            rateLimitInfo: {
+                remainingAttempts,
+                message: remainingAttempts > 0
+                    ? `Incorrect email or password. ${remainingAttempts} attempt${remainingAttempts !== 1 ? 's' : ''} remaining.`
+                    : 'Too many failed attempts. Please try again later.'
+            }
+        });
+    }
+    // Clear failed attempts on successful login
+    (0, loginAttemptTracker_1.clearAttempts)(email);
     const accessToken = result.accessToken;
     const refresh = result.refresh;
     // set access token (short-lived)

@@ -9,6 +9,8 @@ const NewTenant: React.FC = () => {
   const { user } = useAuth()
   const router = useRouter()
   const [name, setName] = useState('')
+  const [domain, setDomain] = useState('')
+  const [siteType, setSiteType] = useState<'website' | 'website-lms' | 'lms'>('website-lms')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -20,8 +22,20 @@ const NewTenant: React.FC = () => {
     setError('')
     setLoading(true)
     try {
-      const newTenant = await api.createTenant({ name })
-      router.push(`/admin/tenants/${newTenant.id}`)
+      const host = domain.trim().toLowerCase()
+      const newTenant = await api.createTenant({
+        name,
+        domains: host ? [{ host, isPrimary: true }] : undefined,
+      })
+      await api.updateSiteSettings(newTenant.id, {
+        features: {
+          lms: siteType !== 'website',
+          blog: siteType !== 'lms',
+          commerce: siteType !== 'lms',
+        },
+        homepage_mode: siteType === 'lms' ? 'lms' : 'site',
+      })
+      router.push(`/admin/tenants/${newTenant.id}${siteType === 'lms' ? '' : '/site'}`)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create tenant')
       setLoading(false)
@@ -67,6 +81,50 @@ const NewTenant: React.FC = () => {
                 }}
               />
               <p style={{ margin: '6px 0 0 0', fontSize: 12, color: '#666' }}>The display name for this tenant/portal</p>
+            </div>
+
+            <div style={{ marginBottom: 24 }}>
+              <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, fontSize: 14, color: '#333' }}>Primary Domain (optional)</label>
+              <input
+                value={domain}
+                onChange={e => setDomain(e.target.value)}
+                placeholder="e.g., www.example.com"
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: 6,
+                  fontSize: 14,
+                  boxSizing: 'border-box',
+                  fontFamily: 'inherit'
+                }}
+              />
+              <p style={{ margin: '6px 0 0 0', fontSize: 12, color: '#666' }}>The domain this site will be served on. You can add more domains later.</p>
+            </div>
+
+            <div style={{ marginBottom: 24 }}>
+              <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, fontSize: 14, color: '#333' }}>What are you building?</label>
+              {([
+                { value: 'website', title: 'Website only', desc: 'Pages, blog, forms, store — no learning portal' },
+                { value: 'website-lms', title: 'Website + LMS', desc: 'A public website with a course portal attached' },
+                { value: 'lms', title: 'LMS only', desc: 'A learning portal — the domain goes straight to login' },
+              ] as const).map(opt => (
+                <label
+                  key={opt.value}
+                  style={{
+                    display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 12px', marginBottom: 6,
+                    border: `1px solid ${siteType === opt.value ? '#0ea5a4' : '#e2e8f0'}`,
+                    background: siteType === opt.value ? '#f0fdfa' : 'white',
+                    borderRadius: 8, cursor: 'pointer',
+                  }}
+                >
+                  <input type="radio" name="siteType" checked={siteType === opt.value} onChange={() => setSiteType(opt.value)} style={{ marginTop: 3 }} />
+                  <span>
+                    <span style={{ display: 'block', fontWeight: 600, fontSize: 14 }}>{opt.title}</span>
+                    <span style={{ display: 'block', fontSize: 12, color: '#666' }}>{opt.desc}</span>
+                  </span>
+                </label>
+              ))}
             </div>
 
             <div style={{ display: 'flex', gap: 12 }}>

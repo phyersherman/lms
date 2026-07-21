@@ -124,9 +124,13 @@ const NewCoursePage: React.FC = () => {
       if (isCreating) {
         const result = await api.createCourse(data.title, data.description, selectedTenantId)
         setCourseId(result.id)
+        // persist the full structure (chapters/modules/blocks) built before first save
+        if (data.chapters && data.chapters.length > 0) {
+          await api.updateCourse(result.id, data.title, data.description, data.chapters)
+        }
         alert('Course created successfully')
       } else {
-        await api.updateCourse(courseId, data.title, data.description)
+        await api.updateCourse(courseId, data.title, data.description, data.chapters)
         alert('Course saved successfully')
       }
     } catch (err) {

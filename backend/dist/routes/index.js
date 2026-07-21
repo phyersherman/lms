@@ -50,19 +50,92 @@ const passwordlessAuthController = __importStar(require("../controllers/password
 const passwordlessLinkController = __importStar(require("../controllers/passwordless-link-controller"));
 const authGuard_1 = __importDefault(require("../middleware/authGuard"));
 const authGuard_2 = require("../middleware/authGuard");
+const requireFeature_1 = __importDefault(require("../middleware/requireFeature"));
+const siteController_1 = __importDefault(require("../controllers/siteController"));
+const postController_1 = __importDefault(require("../controllers/postController"));
+const commerceController_1 = __importDefault(require("../controllers/commerceController"));
 const rateLimiters_1 = require("../middleware/rateLimiters");
+const multer_1 = __importDefault(require("multer"));
+const assetController_1 = __importDefault(require("../controllers/assetController"));
+const formController_1 = __importDefault(require("../controllers/formController"));
+const storageService_1 = require("../services/storageService");
+const uploadMiddleware = (0, multer_1.default)({ storage: multer_1.default.memoryStorage(), limits: { fileSize: storageService_1.MAX_UPLOAD_BYTES } });
 const courseController_1 = __importDefault(require("../controllers/courseController"));
 const courseTemplateController_1 = __importDefault(require("../controllers/courseTemplateController"));
 const quiz_controller_1 = __importDefault(require("../controllers/quiz-controller"));
 const progressController_1 = __importDefault(require("../controllers/progressController"));
 const router = (0, express_1.Router)();
 router.get('/health', (_req, res) => res.json({ ok: true }));
+// LMS learner-facing surfaces are feature-gated per site. The gate only applies
+// on tenant domains (platform/admin requests resolve no tenant and pass through).
+const lmsEnabled = (0, requireFeature_1.default)('lms');
+router.use(['/quiz', '/enrollments', '/certificates', '/progress', '/my', '/public/registration-links', '/public/passwordless-links', '/public/auth'], lmsEnabled);
+// website builder: site settings (admin)
+router.get('/tenants/:tenantId/site', (0, authGuard_2.requireAuth)(['admin']), siteController_1.default.getSettings);
+router.put('/tenants/:tenantId/site', (0, authGuard_2.requireAuth)(['admin']), siteController_1.default.updateSettings);
+// website builder: pages (admin)
+router.get('/tenants/:tenantId/pages', (0, authGuard_2.requireAuth)(['admin']), siteController_1.default.listPages);
+router.post('/tenants/:tenantId/pages', (0, authGuard_2.requireAuth)(['admin']), siteController_1.default.createPage);
+router.get('/pages/:pageId', (0, authGuard_2.requireAuth)(['admin']), siteController_1.default.getPage);
+router.put('/pages/:pageId', (0, authGuard_2.requireAuth)(['admin']), siteController_1.default.updatePage);
+router.post('/pages/:pageId/publish', (0, authGuard_2.requireAuth)(['admin']), siteController_1.default.publishPage);
+router.post('/pages/:pageId/unpublish', (0, authGuard_2.requireAuth)(['admin']), siteController_1.default.unpublishPage);
+router.delete('/pages/:pageId', (0, authGuard_2.requireAuth)(['admin']), siteController_1.default.deletePage);
+// website builder: public site + page resolution (no auth)
+router.get('/public/site-page', siteController_1.default.getPublicSitePage);
+// website builder: assets (admin)
+router.post('/tenants/:tenantId/assets', (0, authGuard_2.requireAuth)(['admin']), uploadMiddleware.single('file'), assetController_1.default.upload);
+router.get('/tenants/:tenantId/assets', (0, authGuard_2.requireAuth)(['admin']), assetController_1.default.list);
+router.delete('/tenants/:tenantId/assets/:assetId', (0, authGuard_2.requireAuth)(['admin']), assetController_1.default.remove);
+// website builder: forms + contacts (admin)
+router.get('/tenants/:tenantId/forms', (0, authGuard_2.requireAuth)(['admin']), formController_1.default.listForms);
+router.post('/tenants/:tenantId/forms', (0, authGuard_2.requireAuth)(['admin']), formController_1.default.createForm);
+router.get('/forms/:formId', (0, authGuard_2.requireAuth)(['admin']), formController_1.default.getForm);
+router.put('/forms/:formId', (0, authGuard_2.requireAuth)(['admin']), formController_1.default.updateForm);
+router.delete('/forms/:formId', (0, authGuard_2.requireAuth)(['admin']), formController_1.default.deleteForm);
+router.get('/forms/:formId/submissions', (0, authGuard_2.requireAuth)(['admin']), formController_1.default.listSubmissions);
+router.get('/tenants/:tenantId/contacts', (0, authGuard_2.requireAuth)(['admin']), formController_1.default.listContacts);
+router.delete('/tenants/:tenantId/contacts/:contactId', (0, authGuard_2.requireAuth)(['admin']), formController_1.default.deleteContact);
+// blog (admin)
+router.get('/tenants/:tenantId/posts', (0, authGuard_2.requireAuth)(['admin']), postController_1.default.listPosts);
+router.post('/tenants/:tenantId/posts', (0, authGuard_2.requireAuth)(['admin']), postController_1.default.createPost);
+router.get('/posts/:postId', (0, authGuard_2.requireAuth)(['admin']), postController_1.default.getPost);
+router.put('/posts/:postId', (0, authGuard_2.requireAuth)(['admin']), postController_1.default.updatePost);
+router.post('/posts/:postId/publish', (0, authGuard_2.requireAuth)(['admin']), postController_1.default.publishPost);
+router.post('/posts/:postId/unpublish', (0, authGuard_2.requireAuth)(['admin']), postController_1.default.unpublishPost);
+router.delete('/posts/:postId', (0, authGuard_2.requireAuth)(['admin']), postController_1.default.deletePost);
+router.get('/tenants/:tenantId/categories', (0, authGuard_2.requireAuth)(['admin']), postController_1.default.listCategories);
+router.post('/tenants/:tenantId/categories', (0, authGuard_2.requireAuth)(['admin']), postController_1.default.createCategory);
+router.delete('/tenants/:tenantId/categories/:categoryId', (0, authGuard_2.requireAuth)(['admin']), postController_1.default.deleteCategory);
+// blog (public; feature-gated inside the controller)
+router.get('/public/posts', postController_1.default.listPublicPosts);
+router.get('/public/posts/:slug', postController_1.default.getPublicPost);
+// commerce (admin)
+router.get('/tenants/:tenantId/commerce-config', (0, authGuard_2.requireAuth)(['admin']), commerceController_1.default.getConfig);
+router.put('/tenants/:tenantId/commerce-config', (0, authGuard_2.requireAuth)(['admin']), commerceController_1.default.updateConfig);
+router.get('/tenants/:tenantId/products', (0, authGuard_2.requireAuth)(['admin']), commerceController_1.default.listProducts);
+router.post('/tenants/:tenantId/products', (0, authGuard_2.requireAuth)(['admin']), commerceController_1.default.createProduct);
+router.put('/products/:productId', (0, authGuard_2.requireAuth)(['admin']), commerceController_1.default.updateProduct);
+router.delete('/products/:productId', (0, authGuard_2.requireAuth)(['admin']), commerceController_1.default.deleteProduct);
+router.get('/tenants/:tenantId/orders', (0, authGuard_2.requireAuth)(['admin']), commerceController_1.default.listOrders);
+router.post('/tenants/:tenantId/orders/:orderId/status', (0, authGuard_2.requireAuth)(['admin']), commerceController_1.default.updateOrderStatus);
+// commerce (public; feature-gated in controller, CSRF exempt under /public/)
+router.get('/public/products/:productId', commerceController_1.default.getPublicProduct);
+router.post('/public/checkout', rateLimiters_1.formSubmitLimiter, commerceController_1.default.checkout);
+// website builder: public form endpoints (no auth; CSRF exempt under /public/)
+router.get('/public/forms/:formId', formController_1.default.getPublicForm);
+router.post('/public/forms/:formId/submissions', rateLimiters_1.formSubmitLimiter, formController_1.default.submitForm);
+router.get('/public/downloads/:token', formController_1.default.download);
 // tenant management (admin)
 router.get('/tenants', (0, authGuard_2.requireAuth)(['admin']), tenantController_1.default.listTenants);
 router.get('/tenants/:id', (0, authGuard_2.requireAuth)(['admin']), tenantController_1.default.getTenant);
 router.post('/tenants', (0, authGuard_2.requireAuth)(['admin']), tenantController_1.default.createTenant);
 router.put('/tenants/:id', (0, authGuard_2.requireAuth)(['admin']), tenantController_1.default.updateTenant);
 router.delete('/tenants/:id', (0, authGuard_2.requireAuth)(['admin']), tenantController_1.default.deleteTenant);
+// tenant domain management (admin)
+router.get('/tenants/:id/domains', (0, authGuard_2.requireAuth)(['admin']), tenantController_1.default.listDomains);
+router.post('/tenants/:id/domains', (0, authGuard_2.requireAuth)(['admin']), tenantController_1.default.addDomain);
+router.delete('/tenants/:id/domains/:domainId', (0, authGuard_2.requireAuth)(['admin']), tenantController_1.default.removeDomain);
 // user management (admin) - tenant-scoped
 router.get('/tenants/:tenantId/users', (0, authGuard_2.requireAuth)(['admin']), userController.listUsers);
 router.get('/tenants/:tenantId/users/:userId', (0, authGuard_2.requireAuth)(['admin']), userController.getUser);
@@ -211,7 +284,7 @@ router.get('/health', (_req, res) => {
     res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 // auth
-router.post('/auth/login', rateLimiters_1.authLimiter, authController_1.default.login);
+router.post('/auth/login', authController_1.default.login);
 router.post('/auth/register', rateLimiters_1.authLimiter, authController_1.default.register);
 router.post('/auth/logout', authController_1.default.logout);
 router.post('/auth/refresh', authController_1.default.refresh);

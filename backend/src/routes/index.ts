@@ -12,7 +12,17 @@ import * as passwordlessAuthController from '../controllers/passwordless-auth-co
 import * as passwordlessLinkController from '../controllers/passwordless-link-controller'
 import requireAuth from '../middleware/authGuard'
 import { requireAuth as requireRoleAuth } from '../middleware/authGuard'
-import { authLimiter, inviteLimiter } from '../middleware/rateLimiters'
+import requireFeature from '../middleware/requireFeature'
+import siteController from '../controllers/siteController'
+import postController from '../controllers/postController'
+import commerceController from '../controllers/commerceController'
+import { authLimiter, inviteLimiter, formSubmitLimiter } from '../middleware/rateLimiters'
+import multer from 'multer'
+import assetController from '../controllers/assetController'
+import formController from '../controllers/formController'
+import { MAX_UPLOAD_BYTES } from '../services/storageService'
+
+const uploadMiddleware = multer({ storage: multer.memoryStorage(), limits: { fileSize: MAX_UPLOAD_BYTES } })
 import courseController from '../controllers/courseController'
 import courseTemplateController from '../controllers/courseTemplateController'
 import quizController from '../controllers/quiz-controller'
@@ -23,12 +33,91 @@ const router = Router()
 
 router.get('/health', (_req, res) => res.json({ ok: true }))
 
+// LMS learner-facing surfaces are feature-gated per site. The gate only applies
+// on tenant domains (platform/admin requests resolve no tenant and pass through).
+const lmsEnabled = requireFeature('lms')
+router.use(
+  ['/quiz', '/enrollments', '/certificates', '/progress', '/my', '/public/registration-links', '/public/passwordless-links', '/public/auth'],
+  lmsEnabled
+)
+
+// website builder: site settings (admin)
+router.get('/tenants/:tenantId/site', requireRoleAuth(['admin']), siteController.getSettings)
+router.put('/tenants/:tenantId/site', requireRoleAuth(['admin']), siteController.updateSettings)
+
+// website builder: pages (admin)
+router.get('/tenants/:tenantId/pages', requireRoleAuth(['admin']), siteController.listPages)
+router.post('/tenants/:tenantId/pages', requireRoleAuth(['admin']), siteController.createPage)
+router.get('/pages/:pageId', requireRoleAuth(['admin']), siteController.getPage)
+router.put('/pages/:pageId', requireRoleAuth(['admin']), siteController.updatePage)
+router.post('/pages/:pageId/publish', requireRoleAuth(['admin']), siteController.publishPage)
+router.post('/pages/:pageId/unpublish', requireRoleAuth(['admin']), siteController.unpublishPage)
+router.delete('/pages/:pageId', requireRoleAuth(['admin']), siteController.deletePage)
+
+// website builder: public site + page resolution (no auth)
+router.get('/public/site-page', siteController.getPublicSitePage)
+
+// website builder: assets (admin)
+router.post('/tenants/:tenantId/assets', requireRoleAuth(['admin']), uploadMiddleware.single('file'), assetController.upload)
+router.get('/tenants/:tenantId/assets', requireRoleAuth(['admin']), assetController.list)
+router.delete('/tenants/:tenantId/assets/:assetId', requireRoleAuth(['admin']), assetController.remove)
+
+// website builder: forms + contacts (admin)
+router.get('/tenants/:tenantId/forms', requireRoleAuth(['admin']), formController.listForms)
+router.post('/tenants/:tenantId/forms', requireRoleAuth(['admin']), formController.createForm)
+router.get('/forms/:formId', requireRoleAuth(['admin']), formController.getForm)
+router.put('/forms/:formId', requireRoleAuth(['admin']), formController.updateForm)
+router.delete('/forms/:formId', requireRoleAuth(['admin']), formController.deleteForm)
+router.get('/forms/:formId/submissions', requireRoleAuth(['admin']), formController.listSubmissions)
+router.get('/tenants/:tenantId/contacts', requireRoleAuth(['admin']), formController.listContacts)
+router.delete('/tenants/:tenantId/contacts/:contactId', requireRoleAuth(['admin']), formController.deleteContact)
+
+// blog (admin)
+router.get('/tenants/:tenantId/posts', requireRoleAuth(['admin']), postController.listPosts)
+router.post('/tenants/:tenantId/posts', requireRoleAuth(['admin']), postController.createPost)
+router.get('/posts/:postId', requireRoleAuth(['admin']), postController.getPost)
+router.put('/posts/:postId', requireRoleAuth(['admin']), postController.updatePost)
+router.post('/posts/:postId/publish', requireRoleAuth(['admin']), postController.publishPost)
+router.post('/posts/:postId/unpublish', requireRoleAuth(['admin']), postController.unpublishPost)
+router.delete('/posts/:postId', requireRoleAuth(['admin']), postController.deletePost)
+router.get('/tenants/:tenantId/categories', requireRoleAuth(['admin']), postController.listCategories)
+router.post('/tenants/:tenantId/categories', requireRoleAuth(['admin']), postController.createCategory)
+router.delete('/tenants/:tenantId/categories/:categoryId', requireRoleAuth(['admin']), postController.deleteCategory)
+
+// blog (public; feature-gated inside the controller)
+router.get('/public/posts', postController.listPublicPosts)
+router.get('/public/posts/:slug', postController.getPublicPost)
+
+// commerce (admin)
+router.get('/tenants/:tenantId/commerce-config', requireRoleAuth(['admin']), commerceController.getConfig)
+router.put('/tenants/:tenantId/commerce-config', requireRoleAuth(['admin']), commerceController.updateConfig)
+router.get('/tenants/:tenantId/products', requireRoleAuth(['admin']), commerceController.listProducts)
+router.post('/tenants/:tenantId/products', requireRoleAuth(['admin']), commerceController.createProduct)
+router.put('/products/:productId', requireRoleAuth(['admin']), commerceController.updateProduct)
+router.delete('/products/:productId', requireRoleAuth(['admin']), commerceController.deleteProduct)
+router.get('/tenants/:tenantId/orders', requireRoleAuth(['admin']), commerceController.listOrders)
+router.post('/tenants/:tenantId/orders/:orderId/status', requireRoleAuth(['admin']), commerceController.updateOrderStatus)
+
+// commerce (public; feature-gated in controller, CSRF exempt under /public/)
+router.get('/public/products/:productId', commerceController.getPublicProduct)
+router.post('/public/checkout', formSubmitLimiter, commerceController.checkout)
+
+// website builder: public form endpoints (no auth; CSRF exempt under /public/)
+router.get('/public/forms/:formId', formController.getPublicForm)
+router.post('/public/forms/:formId/submissions', formSubmitLimiter, formController.submitForm)
+router.get('/public/downloads/:token', formController.download)
+
 // tenant management (admin)
 router.get('/tenants', requireRoleAuth(['admin']), tenantController.listTenants)
 router.get('/tenants/:id', requireRoleAuth(['admin']), tenantController.getTenant)
 router.post('/tenants', requireRoleAuth(['admin']), tenantController.createTenant)
 router.put('/tenants/:id', requireRoleAuth(['admin']), tenantController.updateTenant)
 router.delete('/tenants/:id', requireRoleAuth(['admin']), tenantController.deleteTenant)
+
+// tenant domain management (admin)
+router.get('/tenants/:id/domains', requireRoleAuth(['admin']), tenantController.listDomains)
+router.post('/tenants/:id/domains', requireRoleAuth(['admin']), tenantController.addDomain)
+router.delete('/tenants/:id/domains/:domainId', requireRoleAuth(['admin']), tenantController.removeDomain)
 
 // user management (admin) - tenant-scoped
 router.get('/tenants/:tenantId/users', requireRoleAuth(['admin']), userController.listUsers)
