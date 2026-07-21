@@ -30,6 +30,44 @@ model Tenant {
   certificates            Certificate[]
   registrationLinks       RegistrationLink[]
   passwordlessAccessLinks PasswordlessAccessLink[]
+  siteSettings            SiteSettings?
+  pages                   Page[]
+}
+
+// Per-tenant website configuration: theme, header/footer/nav, enabled features.
+// A tenant without SiteSettings behaves as an LMS-only portal (legacy behavior).
+model SiteSettings {
+  id            String   @id @default(cuid())
+  tenant_id     String   @unique
+  tenant        Tenant   @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  theme         Json?    // { primaryColor, secondaryColor, backgroundColor, textColor, fontHeading, fontBody, logoUrl }
+  header        Json?    // { logoUrl, navItems: [{ id, label, kind: 'page'|'url'|'lms', target, newTab? }] }
+  footer        Json?    // { text, links: [...], showSocial, social: {...} }
+  features      Json?    // { lms: bool, blog: bool, commerce: bool }
+  homepage_mode String   @default("site") // "site" | "lms" (redirect / to /login)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+}
+
+// A website page built with the visual editor. Content is a layout tree:
+// { sections: [{ id, settings, columns: [{ id, widthFraction, blocks: [{ id, type, content, config }] }] }] }
+model Page {
+  id                String    @id @default(cuid())
+  tenant_id         String
+  tenant            Tenant    @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  slug              String // "" = homepage
+  title             String
+  seo_title         String?
+  seo_description   String?
+  og_image_url      String?
+  status            String    @default("draft") // "draft" | "published"
+  draft_content     Json
+  published_content Json?
+  published_at      DateTime?
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
+
+  @@unique([tenant_id, slug])
 }
 
 model Domain {

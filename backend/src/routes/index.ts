@@ -12,6 +12,8 @@ import * as passwordlessAuthController from '../controllers/passwordless-auth-co
 import * as passwordlessLinkController from '../controllers/passwordless-link-controller'
 import requireAuth from '../middleware/authGuard'
 import { requireAuth as requireRoleAuth } from '../middleware/authGuard'
+import requireFeature from '../middleware/requireFeature'
+import siteController from '../controllers/siteController'
 import { authLimiter, inviteLimiter } from '../middleware/rateLimiters'
 import courseController from '../controllers/courseController'
 import courseTemplateController from '../controllers/courseTemplateController'
@@ -22,6 +24,30 @@ import { Request, Response } from 'express'
 const router = Router()
 
 router.get('/health', (_req, res) => res.json({ ok: true }))
+
+// LMS learner-facing surfaces are feature-gated per site. The gate only applies
+// on tenant domains (platform/admin requests resolve no tenant and pass through).
+const lmsEnabled = requireFeature('lms')
+router.use(
+  ['/quiz', '/enrollments', '/certificates', '/progress', '/my', '/public/registration-links', '/public/passwordless-links', '/public/auth'],
+  lmsEnabled
+)
+
+// website builder: site settings (admin)
+router.get('/tenants/:tenantId/site', requireRoleAuth(['admin']), siteController.getSettings)
+router.put('/tenants/:tenantId/site', requireRoleAuth(['admin']), siteController.updateSettings)
+
+// website builder: pages (admin)
+router.get('/tenants/:tenantId/pages', requireRoleAuth(['admin']), siteController.listPages)
+router.post('/tenants/:tenantId/pages', requireRoleAuth(['admin']), siteController.createPage)
+router.get('/pages/:pageId', requireRoleAuth(['admin']), siteController.getPage)
+router.put('/pages/:pageId', requireRoleAuth(['admin']), siteController.updatePage)
+router.post('/pages/:pageId/publish', requireRoleAuth(['admin']), siteController.publishPage)
+router.post('/pages/:pageId/unpublish', requireRoleAuth(['admin']), siteController.unpublishPage)
+router.delete('/pages/:pageId', requireRoleAuth(['admin']), siteController.deletePage)
+
+// website builder: public site + page resolution (no auth)
+router.get('/public/site-page', siteController.getPublicSitePage)
 
 // tenant management (admin)
 router.get('/tenants', requireRoleAuth(['admin']), tenantController.listTenants)

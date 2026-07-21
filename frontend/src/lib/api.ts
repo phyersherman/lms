@@ -230,6 +230,55 @@ export async function deleteTenant(tenantId: string) {
   return fetchJson(`/tenants/${tenantId}`, { method: 'DELETE' })
 }
 
+// Website builder: site settings + pages
+export async function getSiteSettings(tenantId: string) {
+  return fetchJson(`/tenants/${tenantId}/site`, { method: 'GET' })
+}
+
+export async function updateSiteSettings(tenantId: string, data: { theme?: any; header?: any; footer?: any; features?: any; homepage_mode?: string }) {
+  return fetchJson(`/tenants/${tenantId}/site`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+}
+
+export async function getSitePages(tenantId: string) {
+  return fetchJson(`/tenants/${tenantId}/pages`, { method: 'GET' })
+}
+
+export async function createSitePage(tenantId: string, data: { title: string; slug: string; seo_title?: string; seo_description?: string }) {
+  return fetchJson(`/tenants/${tenantId}/pages`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+}
+
+export async function getSitePage(pageId: string) {
+  return fetchJson(`/pages/${pageId}`, { method: 'GET' })
+}
+
+export async function updateSitePage(pageId: string, data: { title?: string; slug?: string; seo_title?: string | null; seo_description?: string | null; og_image_url?: string | null; draft_content?: any }) {
+  return fetchJson(`/pages/${pageId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+}
+
+export async function publishSitePage(pageId: string) {
+  return fetchJson(`/pages/${pageId}/publish`, { method: 'POST' })
+}
+
+export async function unpublishSitePage(pageId: string) {
+  return fetchJson(`/pages/${pageId}/unpublish`, { method: 'POST' })
+}
+
+export async function deleteSitePage(pageId: string) {
+  return fetchJson(`/pages/${pageId}`, { method: 'DELETE' })
+}
+
 // Tenant domain management
 export async function getTenantDomains(tenantId: string) {
   return fetchJson(`/tenants/${tenantId}/domains`, { method: 'GET' })
@@ -840,6 +889,15 @@ export default {
   getTenantDomains,
   addTenantDomain,
   removeTenantDomain,
+  getSiteSettings,
+  updateSiteSettings,
+  getSitePages,
+  createSitePage,
+  getSitePage,
+  updateSitePage,
+  publishSitePage,
+  unpublishSitePage,
+  deleteSitePage,
   // User management
   getUsers,
   getUser,
