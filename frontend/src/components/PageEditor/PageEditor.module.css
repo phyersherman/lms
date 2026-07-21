@@ -442,3 +442,169 @@
   color: #dc2626;
   cursor: pointer;
 }
+
+/* ---- freeform grid canvas ---- */
+
+.gridCanvas {
+  position: relative;
+  width: 100%;
+}
+
+.gridCanvasDragging {
+  background-image:
+    linear-gradient(to right, rgba(14, 165, 164, 0.14) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(14, 165, 164, 0.14) 1px, transparent 1px);
+  cursor: grabbing;
+}
+
+.gridCanvasDragging * {
+  user-select: none !important;
+}
+
+.gridBlock {
+  position: relative;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 6px;
+  cursor: grab;
+}
+
+.gridBlock:hover {
+  border-color: #cbd5e1;
+}
+
+.gridBlockSelected {
+  border-color: #0ea5a4 !important;
+  box-shadow: 0 0 0 3px rgba(14, 165, 164, 0.15);
+}
+
+.gridBlockContent {
+  height: 100%;
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+.gridBlockLabel {
+  position: absolute;
+  top: -22px;
+  left: 4px;
+  z-index: 45;
+  display: none;
+  align-items: center;
+  gap: 6px;
+  background: #0f172a;
+  color: #e2e8f0;
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 11px;
+  white-space: nowrap;
+  cursor: default;
+}
+
+.gridBlock:hover .gridBlockLabel,
+.gridBlockSelected .gridBlockLabel {
+  display: flex;
+}
+
+.gridHandle {
+  position: absolute;
+  z-index: 46;
+  display: none;
+}
+
+.gridBlock:hover .gridHandle,
+.gridBlockSelected .gridHandle {
+  display: block;
+}
+
+.gridHandleE {
+  top: 50%;
+  right: -5px;
+  width: 10px;
+  height: 28px;
+  margin-top: -14px;
+  cursor: ew-resize;
+}
+
+.gridHandleW {
+  top: 50%;
+  left: -5px;
+  width: 10px;
+  height: 28px;
+  margin-top: -14px;
+  cursor: ew-resize;
+}
+
+.gridHandleS {
+  bottom: -5px;
+  left: 50%;
+  width: 28px;
+  height: 10px;
+  margin-left: -14px;
+  cursor: ns-resize;
+}
+
+.gridHandleSE {
+  bottom: -6px;
+  right: -6px;
+  width: 14px;
+  height: 14px;
+  cursor: nwse-resize;
+}
+
+.gridHandleE::after,
+.gridHandleW::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 50%;
+  width: 4px;
+  margin-left: -2px;
+  border-radius: 4px;
+  background: #0ea5a4;
+}
+
+.gridHandleS::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  top: 50%;
+  height: 4px;
+  margin-top: -2px;
+  border-radius: 4px;
+  background: #0ea5a4;
+}
+
+.gridHandleSE::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border-radius: 3px;
+  background: #0ea5a4;
+  border: 2px solid white;
+}
+
+.placementGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.placementCell span {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  color: #94a3b8;
+  margin-bottom: 2px;
+}
+
+.placementCell input {
+  width: 100%;
+  padding: 5px 6px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 13px;
+  box-sizing: border-box;
+}

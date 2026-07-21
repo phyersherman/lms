@@ -24,8 +24,10 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
     }
   }, [router, user])
 
-  // while auth check is in-progress, render nothing to avoid flash
-  if (user === undefined) return null
+  // Only gate protected routes on the auth check; public site pages must
+  // render immediately (and server-side) for visitors and SEO.
+  const needsAuth = PROTECTED_PREFIXES.some(p => router.pathname.startsWith(p))
+  if (needsAuth && user === undefined) return null
 
   return <>{children}</>
 }

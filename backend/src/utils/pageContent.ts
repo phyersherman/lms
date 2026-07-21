@@ -6,6 +6,7 @@ export interface PageBlockNode {
   type: string
   content?: string
   config?: string // JSON string, same shape as LMS Block.config
+  placement?: { x: number; y: number; w: number; h: number } // grid sections only
 }
 
 export interface PageColumn {
@@ -21,6 +22,8 @@ export interface PageSection {
     backgroundImageUrl?: string
     paddingY?: 'none' | 'small' | 'medium' | 'large'
     fullWidth?: boolean
+    layout?: 'columns' | 'grid' // grid = freeform placement (blocks carry `placement`)
+    minRows?: number
   }
   columns: PageColumn[]
 }
@@ -33,7 +36,8 @@ export const emptyPageContent = (): PageContent => ({
   sections: [
     {
       id: randomUUID(),
-      settings: { paddingY: 'medium' },
+      // new pages start with a freeform grid section (drag & resize anywhere)
+      settings: { paddingY: 'medium', layout: 'grid', minRows: 6 },
       columns: [{ id: randomUUID(), widthFraction: 1, blocks: [] }],
     },
   ],

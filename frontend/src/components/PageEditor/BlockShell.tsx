@@ -3,8 +3,7 @@ import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { BlockNode } from '../blocks/types'
 import { BLOCK_REGISTRY, BlockRenderContext } from '../blocks/registry'
-import BlockDisplay from '../blocks/BlockDisplay'
-import TextInlineEditor from './TextInlineEditor'
+import BlockInner from './BlockInner'
 import { DraftDispatch } from './usePageDraft'
 import styles from './PageEditor.module.css'
 
@@ -56,17 +55,7 @@ const BlockShell: React.FC<Props> = ({ block, columnId, sectionId, selected, con
         </button>
       </div>
 
-      <div className={block.type === 'quiz' ? styles.blockNoninteractive : undefined}>
-        {block.type === 'text' ? (
-          <TextInlineEditor
-            block={block}
-            selected={selected}
-            onChange={html => dispatch({ type: 'UPDATE_BLOCK', blockId: block.id, updates: { content: html }, transient: true })}
-          />
-        ) : (
-          <BlockDisplay block={block} context={context} />
-        )}
-      </div>
+      <BlockInner block={block} selected={selected} context={context} dispatch={dispatch} />
     </div>
   )
 }

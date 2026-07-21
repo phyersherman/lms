@@ -1,5 +1,7 @@
 import React from 'react'
 import { BlockNode, parseConfig } from '../types'
+import InlineText from '../../PageEditor/InlineText'
+import type { EditableProps } from './HeroDisplay'
 
 export interface QuoteConfig {
   attribution?: string
@@ -15,7 +17,7 @@ export const DEFAULT_QUOTE_CONFIG: QuoteConfig = {
   backgroundColor: '#f9fffe',
 }
 
-const QuoteDisplay: React.FC<{ block: BlockNode }> = ({ block }) => {
+const QuoteDisplay: React.FC<{ block: BlockNode; editable?: EditableProps }> = ({ block, editable }) => {
   const config = parseConfig(block, DEFAULT_QUOTE_CONFIG)
   return (
     <blockquote
@@ -30,12 +32,21 @@ const QuoteDisplay: React.FC<{ block: BlockNode }> = ({ block }) => {
         lineHeight: 1.8,
       }}
     >
-      <p style={{ fontSize: 18, margin: config.attribution ? '0 0 16px 0' : 0 }}>
-        {block.content || 'No quote provided'}
+      <p style={{ fontSize: 18, margin: config.attribution || editable ? '0 0 16px 0' : 0 }}>
+        {editable ? (
+          <InlineText value={block.content || ''} placeholder="Quote text" onChange={editable.onContent} />
+        ) : (
+          block.content || 'No quote provided'
+        )}
       </p>
-      {config.attribution && (
+      {(config.attribution || editable) && (
         <footer style={{ fontSize: 14, opacity: 0.8, textAlign: 'right', fontStyle: 'normal' }}>
-          — {config.attribution}
+          —{' '}
+          {editable ? (
+            <InlineText value={config.attribution || ''} placeholder="Attribution" onChange={v => editable.onConfigPatch({ attribution: v })} />
+          ) : (
+            config.attribution
+          )}
         </footer>
       )}
     </blockquote>

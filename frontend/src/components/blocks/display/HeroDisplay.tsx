@@ -1,5 +1,11 @@
 import React from 'react'
 import { BlockNode, parseConfig } from '../types'
+import InlineText from '../../PageEditor/InlineText'
+
+export interface EditableProps {
+  onContent: (value: string) => void
+  onConfigPatch: (patch: object) => void
+}
 
 export interface HeroConfig {
   subheading?: string
@@ -27,8 +33,9 @@ export const DEFAULT_HERO_CONFIG: HeroConfig = {
 
 const HEIGHT_PADDING = { small: '48px 24px', medium: '88px 24px', large: '140px 24px' } as const
 
-// content = heading text
-const HeroDisplay: React.FC<{ block: BlockNode }> = ({ block }) => {
+// content = heading text; `editable` (editor canvas only) makes the heading,
+// kicker and subheading click-to-edit in place.
+const HeroDisplay: React.FC<{ block: BlockNode; editable?: EditableProps }> = ({ block, editable }) => {
   const config = parseConfig(block, DEFAULT_HERO_CONFIG)
   const align = config.alignment || 'center'
   const hasImage = !!config.backgroundImageUrl
@@ -57,17 +64,29 @@ const HeroDisplay: React.FC<{ block: BlockNode }> = ({ block }) => {
           margin: '0 auto',
         }}
       >
-        {config.kicker && (
+        {(config.kicker || editable) && (
           <p style={{ margin: '0 0 12px 0', fontSize: 14, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', opacity: 0.85 }}>
-            {config.kicker}
+            {editable ? (
+              <InlineText value={config.kicker || ''} placeholder="Kicker" onChange={v => editable.onConfigPatch({ kicker: v })} />
+            ) : (
+              config.kicker
+            )}
           </p>
         )}
         <h1 style={{ margin: 0, fontSize: 'clamp(28px, 5vw, 48px)', lineHeight: 1.15 }}>
-          {block.content || 'Hero heading'}
+          {editable ? (
+            <InlineText value={block.content || ''} placeholder="Hero heading" onChange={editable.onContent} />
+          ) : (
+            block.content || 'Hero heading'
+          )}
         </h1>
-        {config.subheading && (
+        {(config.subheading || editable) && (
           <p style={{ margin: '20px 0 0 0', fontSize: 'clamp(16px, 2.5vw, 20px)', lineHeight: 1.5, opacity: 0.92 }}>
-            {config.subheading}
+            {editable ? (
+              <InlineText value={config.subheading || ''} placeholder="Subheading" onChange={v => editable.onConfigPatch({ subheading: v })} />
+            ) : (
+              config.subheading
+            )}
           </p>
         )}
         {config.buttons && config.buttons.length > 0 && (

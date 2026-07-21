@@ -90,3 +90,17 @@ body {
 .text-2xl { font-size: 1.5rem }
 .font-semibold { font-weight: 600 }
 .font-bold { font-weight: 700 }
+
+/* Freeform grid sections (site builder): collapse to a stacked column on
+   small screens, ordered by each block's grid position. */
+@media (max-width: 767px) {
+  .site-grid {
+    display: flex !important;
+    flex-direction: column;
+    gap: 16px;
+    min-height: 0 !important;
+  }
+  .site-grid > * {
+    grid-area: auto !important;
+  }
+}

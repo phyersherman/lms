@@ -69,8 +69,10 @@ upserts pages.
 ### Content tree
 
 `content.sections[].columns[].blocks[]`. Ids are optional — the importer
-generates them. `widthFraction` values in a section should sum to ~1 (defaults
-to equal widths).
+generates them. Sections come in two layout modes:
+
+**Stacked columns** (default): blocks stack vertically inside flex columns.
+`widthFraction` values in a section should sum to ~1 (defaults to equal widths).
 
 ```jsonc
 {
@@ -79,6 +81,23 @@ to equal widths).
     { "widthFraction": 0.5, "blocks": [ { "type": "text", "content": "<h2>Hello</h2><p>…</p>" } ] },
     { "widthFraction": 0.5, "blocks": [ ... ] }
   ]
+}
+```
+
+**Freeform grid** (`"layout": "grid"`): blocks are placed anywhere on a
+24-column grid (rows are 24 px and grow with content) and carry a `placement`
+`{ x, y, w, h }` in cell units. All blocks live in a single column. On mobile
+the grid collapses to a stacked column ordered by position. This is the layout
+the visual editor's drag-and-resize canvas produces.
+
+```jsonc
+{
+  "settings": { "layout": "grid", "minRows": 12, "paddingY": "medium" },
+  "columns": [ { "widthFraction": 1, "blocks": [
+    { "type": "hero",   "content": "Big headline", "placement": { "x": 0,  "y": 0, "w": 24, "h": 10 } },
+    { "type": "text",   "content": "<p>Left…</p>", "placement": { "x": 0,  "y": 11, "w": 11, "h": 5 } },
+    { "type": "button", "content": "Go",           "placement": { "x": 14, "y": 12, "w": 6,  "h": 2 } }
+  ] } ]
 }
 ```
 

@@ -1,6 +1,25 @@
 import { useReducer, useCallback } from 'react'
-import { BlockNode, PageContent, PageSection, SectionSettings } from '../blocks/types'
+import { BlockNode, GridPlacement, PageContent, PageSection, SectionSettings, GRID_COLUMNS } from '../blocks/types'
 import { createBlock } from '../blocks/registry'
+
+// Sensible starting sizes (in grid cells) when a block is added to a grid
+// section or a stacked section is converted to freeform.
+export const DEFAULT_GRID_SIZES: Record<string, { w: number; h: number }> = {
+  text: { w: 12, h: 4 },
+  hero: { w: 24, h: 12 },
+  image: { w: 10, h: 8 },
+  video: { w: 14, h: 9 },
+  quote: { w: 12, h: 4 },
+  button: { w: 6, h: 2 },
+  divider: { w: 24, h: 1 },
+  spacer: { w: 24, h: 2 },
+  form: { w: 12, h: 12 },
+  product: { w: 24, h: 14 },
+  blogListing: { w: 24, h: 10 },
+  quiz: { w: 24, h: 10 },
+}
+
+export const gridSizeFor = (type: string) => DEFAULT_GRID_SIZES[type] || { w: 12, h: 4 }
 
 export type Selection =
   | { kind: 'block'; id: string }
@@ -17,16 +36,61 @@ export interface DraftState {
 
 const uid = () => `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 9)}`
 
-export const newSection = (columns = 1): PageSection => ({
+export const newSection = (columns = 1, layout: 'columns' | 'grid' = 'grid'): PageSection => ({
   id: `sec-${uid()}`,
-  settings: { paddingY: 'medium' },
-  columns: Array.from({ length: columns }, () => ({ id: `col-${uid()}`, widthFraction: 1 / columns, blocks: [] })),
+  settings: layout === 'grid' ? { paddingY: 'medium', layout: 'grid', minRows: 6 } : { paddingY: 'medium' },
+  columns:
+    layout === 'grid'
+      ? [{ id: `col-${uid()}`, widthFraction: 1, blocks: [] }]
+      : Array.from({ length: columns }, () => ({ id: `col-${uid()}`, widthFraction: 1 / columns, blocks: [] })),
 })
+
+// ---- stacked <-> freeform conversion ----
+
+const toGridLayout = (section: PageSection): PageSection => {
+  if (section.settings?.layout === 'grid') return section
+  const blocks: BlockNode[] = []
+  let xCursor = 0
+  const colYs: number[] = []
+  section.columns.forEach((column, ci) => {
+    const w = Math.max(2, Math.round(column.widthFraction * GRID_COLUMNS))
+    const x = Math.min(xCursor, GRID_COLUMNS - w)
+    let y = 0
+    for (const block of column.blocks) {
+      const size = gridSizeFor(block.type)
+      blocks.push({ ...block, placement: { x, y, w, h: size.h } })
+      y += size.h + 1
+    }
+    colYs[ci] = y
+    xCursor += w
+  })
+  return {
+    ...section,
+    settings: { ...section.settings, layout: 'grid', minRows: Math.max(6, ...colYs) },
+    columns: [{ id: `col-${uid()}`, widthFraction: 1, blocks }],
+  }
+}
+
+const toColumnsLayout = (section: PageSection): PageSection => {
+  if (section.settings?.layout !== 'grid') return section
+  const blocks = [...section.columns.flatMap(c => c.blocks)]
+    .sort((a, b) => (a.placement?.y ?? 0) - (b.placement?.y ?? 0) || (a.placement?.x ?? 0) - (b.placement?.x ?? 0))
+    .map(({ placement, ...rest }) => rest as BlockNode)
+  const { layout, minRows, ...restSettings } = section.settings || {}
+  return {
+    ...section,
+    settings: restSettings,
+    columns: [{ id: `col-${uid()}`, widthFraction: 1, blocks }],
+  }
+}
 
 type Action =
   | { type: 'SET_CONTENT'; content: PageContent }
   | { type: 'SELECT'; selection: Selection }
-  | { type: 'ADD_SECTION'; afterSectionId?: string; columns?: number }
+  | { type: 'ADD_SECTION'; afterSectionId?: string; columns?: number; layout?: 'columns' | 'grid' }
+  | { type: 'SET_SECTION_LAYOUT'; sectionId: string; layout: 'columns' | 'grid' }
+  | { type: 'SET_BLOCK_PLACEMENT'; blockId: string; placement: GridPlacement; transient?: boolean }
+  | { type: 'COMMIT_SNAPSHOT'; before: PageContent }
   | { type: 'DELETE_SECTION'; sectionId: string }
   | { type: 'MOVE_SECTION'; sectionId: string; direction: -1 | 1 }
   | { type: 'REORDER_SECTIONS'; activeId: string; overId: string }
@@ -86,12 +150,38 @@ function reducer(state: DraftState, action: Action): DraftState {
       return { ...state, selection: action.selection }
 
     case 'ADD_SECTION': {
-      const section = newSection(action.columns || 1)
+      const section = newSection(action.columns || 1, action.layout || 'grid')
       const sections = [...state.content.sections]
       const idx = action.afterSectionId ? sections.findIndex(s => s.id === action.afterSectionId) : sections.length - 1
       sections.splice(idx + 1, 0, section)
       return withHistory(state, { sections }, { selection: { kind: 'section', id: section.id } })
     }
+
+    case 'SET_SECTION_LAYOUT': {
+      const sections = state.content.sections.map(s => {
+        if (s.id !== action.sectionId) return s
+        return action.layout === 'grid' ? toGridLayout(s) : toColumnsLayout(s)
+      })
+      return withHistory(state, { sections })
+    }
+
+    case 'SET_BLOCK_PLACEMENT': {
+      const content = mapBlocks(state.content, b =>
+        b.id === action.blockId ? { ...b, placement: action.placement } : b
+      )
+      if (action.transient) return { ...state, content, dirty: true }
+      return withHistory(state, content)
+    }
+
+    case 'COMMIT_SNAPSHOT':
+      // Push a pre-interaction snapshot onto the undo stack (the live content
+      // was already updated transiently during the drag/resize).
+      return {
+        ...state,
+        past: [...state.past.slice(-MAX_HISTORY), action.before],
+        future: [],
+        dirty: true,
+      }
 
     case 'DELETE_SECTION': {
       const sections = state.content.sections.filter(s => s.id !== action.sectionId)
@@ -151,6 +241,14 @@ function reducer(state: DraftState, action: Action): DraftState {
       const block = createBlock(action.blockType)
       const sections = state.content.sections.map(s => {
         if (s.id !== action.sectionId) return s
+        if (s.settings?.layout === 'grid') {
+          // place at the bottom of the grid, full default size
+          const existing = s.columns.flatMap(c => c.blocks)
+          const bottom = existing.reduce((m, b) => Math.max(m, b.placement ? b.placement.y + b.placement.h : 0), 0)
+          const size = gridSizeFor(action.blockType)
+          const placed = { ...block, placement: { x: 0, y: bottom + (existing.length ? 1 : 0), w: size.w, h: size.h } }
+          return { ...s, columns: [{ ...s.columns[0], blocks: [...s.columns[0].blocks, placed] }] }
+        }
         return {
           ...s,
           columns: s.columns.map(c => {

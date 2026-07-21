@@ -5,6 +5,7 @@ import { CSS } from '@dnd-kit/utilities'
 import { PageSection } from '../blocks/types'
 import { BlockRenderContext } from '../blocks/registry'
 import BlockShell from './BlockShell'
+import GridSectionEditor from './GridSectionEditor'
 import AddBlockMenu from './AddBlockMenu'
 import { DraftDispatch, Selection } from './usePageDraft'
 import styles from './PageEditor.module.css'
@@ -29,9 +30,10 @@ interface Props {
   selection: Selection
   context: BlockRenderContext
   dispatch: DraftDispatch
+  contentSnapshot?: () => any
 }
 
-const SectionShell: React.FC<Props> = ({ section, selection, context, dispatch }) => {
+const SectionShell: React.FC<Props> = ({ section, selection, context, dispatch, contentSnapshot }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: section.id,
     data: { type: 'section' },
@@ -95,34 +97,52 @@ const SectionShell: React.FC<Props> = ({ section, selection, context, dispatch }
             alignItems: 'flex-start',
           }}
         >
-          {section.columns.map(column => (
-            <div key={column.id} style={{ flex: `1 1 ${Math.max(column.widthFraction * 100 - 3, 10)}%`, minWidth: 200 }}>
-              <ColumnDropZone columnId={column.id} sectionId={section.id}>
-                <SortableContext items={column.blocks.map(b => b.id)} strategy={verticalListSortingStrategy}>
-                  <div className={styles.columnBlocks}>
-                    {column.blocks.map(block => (
-                      <BlockShell
-                        key={block.id}
-                        block={block}
-                        columnId={column.id}
-                        sectionId={section.id}
-                        selected={selection?.kind === 'block' && selection.id === block.id}
-                        context={context}
-                        dispatch={dispatch}
-                        onSelect={() => dispatch({ type: 'SELECT', selection: { kind: 'block', id: block.id } })}
-                      />
-                    ))}
-                  </div>
-                </SortableContext>
-                <div onClick={e => e.stopPropagation()}>
-                  <AddBlockMenu
-                    surface={context.surface}
-                    onAdd={type => dispatch({ type: 'ADD_BLOCK', sectionId: section.id, columnId: column.id, blockType: type })}
-                  />
-                </div>
-              </ColumnDropZone>
+          {settings.layout === 'grid' ? (
+            <div style={{ width: '100%' }}>
+              <GridSectionEditor
+                section={section}
+                selection={selection}
+                context={context}
+                dispatch={dispatch}
+                contentSnapshot={contentSnapshot || (() => null)}
+              />
+              <div onClick={e => e.stopPropagation()} style={{ marginTop: 8 }}>
+                <AddBlockMenu
+                  surface={context.surface}
+                  onAdd={type => dispatch({ type: 'ADD_BLOCK', sectionId: section.id, columnId: section.columns[0].id, blockType: type })}
+                />
+              </div>
             </div>
-          ))}
+          ) : (
+            section.columns.map(column => (
+              <div key={column.id} style={{ flex: `1 1 ${Math.max(column.widthFraction * 100 - 3, 10)}%`, minWidth: 200 }}>
+                <ColumnDropZone columnId={column.id} sectionId={section.id}>
+                  <SortableContext items={column.blocks.map(b => b.id)} strategy={verticalListSortingStrategy}>
+                    <div className={styles.columnBlocks}>
+                      {column.blocks.map(block => (
+                        <BlockShell
+                          key={block.id}
+                          block={block}
+                          columnId={column.id}
+                          sectionId={section.id}
+                          selected={selection?.kind === 'block' && selection.id === block.id}
+                          context={context}
+                          dispatch={dispatch}
+                          onSelect={() => dispatch({ type: 'SELECT', selection: { kind: 'block', id: block.id } })}
+                        />
+                      ))}
+                    </div>
+                  </SortableContext>
+                  <div onClick={e => e.stopPropagation()}>
+                    <AddBlockMenu
+                      surface={context.surface}
+                      onAdd={type => dispatch({ type: 'ADD_BLOCK', sectionId: section.id, columnId: column.id, blockType: type })}
+                    />
+                  </div>
+                </ColumnDropZone>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>

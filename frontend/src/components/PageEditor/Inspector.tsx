@@ -236,6 +236,32 @@ const BlockInspector: React.FC<{ block: BlockNode; dispatch: DraftDispatch; tena
         <Field key={f.key} def={f} value={config[f.key]} onChange={v => patchConfig({ [f.key]: v })} />
       ))}
 
+      {block.placement && (
+        <div className={styles.inspectorField}>
+          <label>Position & size (grid cells)</label>
+          <div className={styles.placementGrid}>
+            {(['x', 'y', 'w', 'h'] as const).map(k => (
+              <label key={k} className={styles.placementCell}>
+                <span>{k.toUpperCase()}</span>
+                <input
+                  type="number"
+                  min={k === 'w' || k === 'h' ? 1 : 0}
+                  value={block.placement![k]}
+                  onChange={e =>
+                    dispatch({
+                      type: 'SET_BLOCK_PLACEMENT',
+                      blockId: block.id,
+                      placement: { ...block.placement!, [k]: Math.max(Number(e.target.value) || 0, k === 'w' || k === 'h' ? 1 : 0) },
+                    })
+                  }
+                />
+              </label>
+            ))}
+          </div>
+          <p className={styles.fieldHelp}>Drag the block to move it; drag its edges to resize. 24 columns per row.</p>
+        </div>
+      )}
+
       {block.type === 'hero' && <HeroButtonsEditor block={block} onConfig={patchConfig} />}
     </div>
   )
@@ -255,25 +281,44 @@ const SectionInspector: React.FC<{ section: PageSection; dispatch: DraftDispatch
       </div>
 
       <div className={styles.inspectorField}>
-        <label>Columns</label>
+        <label>Layout mode</label>
         <select
-          value={COLUMN_LAYOUTS.find(l => l.widths.map(w => Math.round(w * 100)).join('/') === currentLayout) ? currentLayout : 'custom'}
-          onChange={e => {
-            const layout = COLUMN_LAYOUTS.find(l => l.widths.map(w => Math.round(w * 100)).join('/') === e.target.value)
-            if (layout) dispatch({ type: 'SET_SECTION_COLUMNS', sectionId: section.id, widths: layout.widths })
-          }}
+          value={settings.layout === 'grid' ? 'grid' : 'columns'}
+          onChange={e => dispatch({ type: 'SET_SECTION_LAYOUT', sectionId: section.id, layout: e.target.value as 'grid' | 'columns' })}
         >
-          {COLUMN_LAYOUTS.map(l => {
-            const key = l.widths.map(w => Math.round(w * 100)).join('/')
-            return (
-              <option key={key} value={key}>{l.label}</option>
-            )
-          })}
-          {!COLUMN_LAYOUTS.some(l => l.widths.map(w => Math.round(w * 100)).join('/') === currentLayout) && (
-            <option value="custom">Custom</option>
-          )}
+          <option value="grid">Freeform grid (drag & resize anywhere)</option>
+          <option value="columns">Stacked columns</option>
         </select>
       </div>
+
+      {settings.layout === 'grid' ? (
+        <Field
+          def={{ key: 'minRows', label: 'Minimum canvas height (rows)', input: 'number', min: 1, max: 200 }}
+          value={settings.minRows || 6}
+          onChange={v => dispatch({ type: 'UPDATE_SECTION_SETTINGS', sectionId: section.id, settings: { minRows: Number(v) || 6 } })}
+        />
+      ) : (
+        <div className={styles.inspectorField}>
+          <label>Columns</label>
+          <select
+            value={COLUMN_LAYOUTS.find(l => l.widths.map(w => Math.round(w * 100)).join('/') === currentLayout) ? currentLayout : 'custom'}
+            onChange={e => {
+              const layout = COLUMN_LAYOUTS.find(l => l.widths.map(w => Math.round(w * 100)).join('/') === e.target.value)
+              if (layout) dispatch({ type: 'SET_SECTION_COLUMNS', sectionId: section.id, widths: layout.widths })
+            }}
+          >
+            {COLUMN_LAYOUTS.map(l => {
+              const key = l.widths.map(w => Math.round(w * 100)).join('/')
+              return (
+                <option key={key} value={key}>{l.label}</option>
+              )
+            })}
+            {!COLUMN_LAYOUTS.some(l => l.widths.map(w => Math.round(w * 100)).join('/') === currentLayout) && (
+              <option value="custom">Custom</option>
+            )}
+          </select>
+        </div>
+      )}
 
       <Field
         def={{ key: 'paddingY', label: 'Vertical padding', input: 'select', options: [

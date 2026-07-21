@@ -198,6 +198,7 @@ const PageEditor: React.FC<Props> = ({ initialContent, onSaveDraft, onPublish, h
                     selection={state.selection}
                     context={{ surface: 'site' }}
                     dispatch={dispatch}
+                    contentSnapshot={() => contentRef.current}
                   />
                 ))}
               </SortableContext>
