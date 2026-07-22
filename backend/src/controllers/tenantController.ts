@@ -15,8 +15,16 @@ const getTenant = async (req: Request, res: Response) => {
 const createTenant = async (req: Request, res: Response) => {
   const { name, defaultLocale, theme, domains } = req.body
   if (!name) return res.status(400).json({ error: 'name required' })
-  const t = await tenantService.create({ name, defaultLocale, theme, domains })
-  res.status(201).json(t)
+  try {
+    const t = await tenantService.create({ name, defaultLocale, theme, domains })
+    res.status(201).json(t)
+  } catch (err: any) {
+    if (err.code === 'P2002') {
+      return res.status(409).json({ error: 'That domain is already attached to another tenant. Remove it there first, or leave the domain blank and add it later.' })
+    }
+    console.error('createTenant failed:', err)
+    res.status(500).json({ error: err.message || 'could not create tenant' })
+  }
 }
 
 const updateTenant = async (req: Request, res: Response) => {

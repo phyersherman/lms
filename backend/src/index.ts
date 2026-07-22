@@ -76,6 +76,11 @@ app.use('/api/uploads', express.static(UPLOADS_DIR, { maxAge: '7d', index: false
 
 app.use('/api', routes)
 
+// Surface async handler rejections in logs instead of silently hanging requests
+process.on('unhandledRejection', reason => {
+  console.error('Unhandled rejection in request handler:', reason)
+})
+
 const PORT = process.env.PORT || 4000
 app.listen(PORT, () => {
   console.log(`LMS backend listening on port ${PORT}`)

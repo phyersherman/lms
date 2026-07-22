@@ -19,7 +19,16 @@ async function fetchJson(path: string, opts: any = {}, retryCount = 0) {
   }
 
   const res = await fetch(url, init)
-  const payload = await res.json()
+  // Parse defensively: proxies and unhandled server errors can return HTML or
+  // an empty body, and res.json() on those surfaces cryptic browser messages
+  // (Safari: "The string did not match the expected pattern.")
+  const raw = await res.text()
+  let payload: any
+  try {
+    payload = raw ? JSON.parse(raw) : {}
+  } catch {
+    payload = { error: `Request failed (${res.status} ${res.statusText || 'server error'})` }
+  }
   if (!res.ok) {
     // Handle 401: attempt refresh and retry once
     if (res.status === 401 && retryCount === 0) {
