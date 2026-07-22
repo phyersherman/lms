@@ -42,8 +42,10 @@ const BlockInner: React.FC<Props> = ({ block, selected, context, dispatch }) => 
 
   switch (block.type) {
     case 'text':
-      // "scale to fill" text shows its fitted size until selected for editing
-      if (parseFrame(block).fillText && !selected) {
+      // Unselected text renders the REAL display (exact public parity —
+      // Tiptap normalizes away inline styles); the rich-text editor mounts
+      // only while the block is selected.
+      if (!selected) {
         return <TextDisplay block={block} />
       }
       return (

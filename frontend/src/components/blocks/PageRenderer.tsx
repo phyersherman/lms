@@ -1,5 +1,5 @@
 import React from 'react'
-import { PageContent, PageSection, GRID_COLUMNS, GRID_ROW_HEIGHT } from './types'
+import { PageContent, PageSection, GRID_COLUMNS, GRID_ROW_HEIGHT, mobileLayout, sectionBackgroundStyle } from './types'
 import BlockDisplay from './BlockDisplay'
 import { FrameBox } from './frame'
 import { BlockRenderContext } from './registry'
@@ -14,6 +14,21 @@ export const GridSectionBody: React.FC<{ section: PageSection; context?: BlockRe
   const blocks = section.columns.flatMap(c => c.blocks)
   const settings = section.settings || {}
   const maxRow = Math.max(settings.minRows || 4, ...blocks.map(b => (b.placement ? b.placement.y + b.placement.h : 1)))
+
+  // Phone layout: explicit per-block mobile placements, or auto-stack. Emitted
+  // as a media query (!important beats the desktop inline styles). Desktop and
+  // mobile are fully independent layouts; tablet uses desktop.
+  const mobile = mobileLayout(blocks)
+  const mobileCss =
+    `@media (max-width: 767px){` +
+    blocks
+      .map(b => {
+        const m = mobile.get(b.id)!
+        return `[data-gb="${b.id}"]{grid-column:${m.x + 1} / span ${Math.min(Math.max(m.w, 1), GRID_COLUMNS)} !important;grid-row:${m.y + 1} / span ${Math.max(m.h, 1)} !important;}`
+      })
+      .join('') +
+    `}`
+
   return (
     <div
       className="site-grid"
@@ -26,15 +41,16 @@ export const GridSectionBody: React.FC<{ section: PageSection; context?: BlockRe
         rowGap: 0,
       }}
     >
+      <style dangerouslySetInnerHTML={{ __html: mobileCss }} />
       {blocks.map((block, i) => {
         const p = block.placement || { x: 0, y: 0, w: GRID_COLUMNS, h: 2 }
         return (
           <div
             key={block.id}
+            data-gb={block.id}
             style={{
               gridColumn: `${Math.max(p.x, 0) + 1} / span ${Math.min(Math.max(p.w, 1), GRID_COLUMNS)}`,
               gridRow: `${Math.max(p.y, 0) + 1} / span ${Math.max(p.h, 1)}`,
-              order: p.y * (GRID_COLUMNS + 1) + p.x, // mobile stacking order
               zIndex: i + 1,
               minWidth: 0,
             }}
@@ -54,10 +70,7 @@ export const SectionRenderer: React.FC<{ section: PageSection; context?: BlockRe
   return (
     <section
       style={{
-        backgroundColor: settings.backgroundColor || 'transparent',
-        backgroundImage: settings.backgroundImageUrl ? `url(${settings.backgroundImageUrl})` : undefined,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
+        ...sectionBackgroundStyle(settings),
         padding: SECTION_PADDING[settings.paddingY || 'medium'],
       }}
     >

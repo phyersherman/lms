@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import api from '../../lib/api'
-import { BlockNode, PageContent, PageSection, parseFrame } from '../blocks/types'
+import { BlockNode, PageContent, PageSection, parseFrame, mobileLayout, GRID_COLUMNS } from '../blocks/types'
 import { BLOCK_REGISTRY } from '../blocks/registry'
 import { BLOCK_INSPECTORS, COLUMN_LAYOUTS, FieldDef } from './inspectorSchema'
 import { DraftDispatch, Selection } from './usePageDraft'
@@ -13,6 +13,7 @@ interface Props {
   selection: Selection
   dispatch: DraftDispatch
   tenantId?: string
+  device?: 'desktop' | 'mobile'
 }
 
 const parseConfig = (block: BlockNode): Record<string, any> => {
@@ -175,7 +176,7 @@ const ProductPicker: React.FC<{ value?: string; tenantId?: string; onChange: (pr
   )
 }
 
-const BlockInspector: React.FC<{ block: BlockNode; dispatch: DraftDispatch; tenantId?: string }> = ({ block, dispatch, tenantId }) => {
+const BlockInspector: React.FC<{ block: BlockNode; dispatch: DraftDispatch; tenantId?: string; device?: 'desktop' | 'mobile'; siblings?: BlockNode[] }> = ({ block, dispatch, tenantId, device = 'desktop', siblings = [] }) => {
   const def = BLOCK_REGISTRY[block.type]
   const schema = BLOCK_INSPECTORS[block.type]
   const config = parseConfig(block)
@@ -243,6 +244,25 @@ const BlockInspector: React.FC<{ block: BlockNode; dispatch: DraftDispatch; tena
         <p className={styles.fieldHelp}>Edit text directly in the canvas. Select the block and start typing.</p>
       )}
 
+      {block.type === 'hero' && (
+        <div className={styles.inspectorField}>
+          <button
+            type="button"
+            className={styles.smallButton}
+            onClick={() => {
+              if (confirm('Convert this hero into individually movable blocks (heading, subheading, buttons)? The hero background moves onto the section. This cannot be re-merged (but Undo works).')) {
+                dispatch({ type: 'EXPLODE_HERO', blockId: block.id })
+              }
+            }}
+          >
+            🧩 Convert to editable blocks
+          </button>
+          <p className={styles.fieldHelp}>
+            Splits the hero into separate text and button blocks you can drag and resize on the grid.
+          </p>
+        </div>
+      )}
+
       {block.type === 'form' && (
         <FormPicker value={config.formId} tenantId={tenantId} onChange={formId => patchConfig({ formId })} />
       )}
@@ -295,11 +315,6 @@ const BlockInspector: React.FC<{ block: BlockNode; dispatch: DraftDispatch; tena
                   />
                   Scale text to fill the box
                 </label>
-                {frame.fillText && (
-                  <p className={styles.fieldHelp} style={{ marginTop: -6 }}>
-                    The fitted size shows while the block isn&apos;t being edited — click elsewhere to see it.
-                  </p>
-                )}
               </>
             )}
             {block.type === 'image' && frame.hAlign === 'stretch' && frame.vAlign === 'stretch' && (
@@ -316,31 +331,42 @@ const BlockInspector: React.FC<{ block: BlockNode; dispatch: DraftDispatch; tena
         )
       })()}
 
-      {block.placement && (
-        <div className={styles.inspectorField}>
-          <label>Position & size (grid cells)</label>
-          <div className={styles.placementGrid}>
-            {(['x', 'y', 'w', 'h'] as const).map(k => (
-              <label key={k} className={styles.placementCell}>
-                <span>{k.toUpperCase()}</span>
-                <input
-                  type="number"
-                  min={k === 'w' || k === 'h' ? 1 : 0}
-                  value={block.placement![k]}
-                  onChange={e =>
-                    dispatch({
-                      type: 'SET_BLOCK_PLACEMENT',
-                      blockId: block.id,
-                      placement: { ...block.placement!, [k]: Math.max(Number(e.target.value) || 0, k === 'w' || k === 'h' ? 1 : 0) },
-                    })
-                  }
-                />
-              </label>
-            ))}
+      {block.placement && (() => {
+        const effective =
+          device === 'mobile'
+            ? block.placementMobile || mobileLayout(siblings.length ? siblings : [block]).get(block.id) || { x: 0, y: 0, w: GRID_COLUMNS, h: 4 }
+            : block.placement!
+        return (
+          <div className={styles.inspectorField}>
+            <label>{device === 'mobile' ? 'Position & size — phone layout' : 'Position & size (grid cells)'}</label>
+            <div className={styles.placementGrid}>
+              {(['x', 'y', 'w', 'h'] as const).map(k => (
+                <label key={k} className={styles.placementCell}>
+                  <span>{k.toUpperCase()}</span>
+                  <input
+                    type="number"
+                    min={k === 'w' || k === 'h' ? 1 : 0}
+                    value={effective[k]}
+                    onChange={e =>
+                      dispatch({
+                        type: 'SET_BLOCK_PLACEMENT',
+                        blockId: block.id,
+                        device,
+                        placement: { ...effective, [k]: Math.max(Number(e.target.value) || 0, k === 'w' || k === 'h' ? 1 : 0) },
+                      })
+                    }
+                  />
+                </label>
+              ))}
+            </div>
+            <p className={styles.fieldHelp}>
+              {device === 'mobile'
+                ? 'Phone layout is independent — changes here never affect desktop or tablet.'
+                : 'Drag the block to move it; drag its edges to resize. 24 columns per row.'}
+            </p>
           </div>
-          <p className={styles.fieldHelp}>Drag the block to move it; drag its edges to resize. 24 columns per row.</p>
-        </div>
-      )}
+        )
+      })()}
 
       {block.type === 'hero' && <HeroButtonsEditor block={block} onConfig={patchConfig} />}
     </div>
@@ -421,6 +447,18 @@ const SectionInspector: React.FC<{ section: PageSection; dispatch: DraftDispatch
         onChange={v => dispatch({ type: 'UPDATE_SECTION_SETTINGS', sectionId: section.id, settings: { backgroundImageUrl: v } })}
         tenantId={tenantId}
       />
+      {settings.backgroundImageUrl && (
+        <Field
+          def={{ key: 'overlayOpacity', label: 'Image overlay (0–1)', input: 'number', min: 0, max: 1 }}
+          value={settings.overlayOpacity}
+          onChange={v => dispatch({ type: 'UPDATE_SECTION_SETTINGS', sectionId: section.id, settings: { overlayOpacity: v } })}
+        />
+      )}
+      <Field
+        def={{ key: 'textColor', label: 'Text color', input: 'color' }}
+        value={settings.textColor}
+        onChange={v => dispatch({ type: 'UPDATE_SECTION_SETTINGS', sectionId: section.id, settings: { textColor: v } })}
+      />
       <Field
         def={{ key: 'fullWidth', label: 'Full width content', input: 'checkbox' }}
         value={settings.fullWidth}
@@ -430,7 +468,7 @@ const SectionInspector: React.FC<{ section: PageSection; dispatch: DraftDispatch
   )
 }
 
-const Inspector: React.FC<Props> = ({ content, selection, dispatch, tenantId }) => {
+const Inspector: React.FC<Props> = ({ content, selection, dispatch, tenantId, device }) => {
   let body: React.ReactNode = (
     <p className={styles.inspectorEmpty}>Select a block or section to edit its settings.</p>
   )
@@ -439,7 +477,17 @@ const Inspector: React.FC<Props> = ({ content, selection, dispatch, tenantId }) 
     for (const s of content.sections) {
       for (const c of s.columns) {
         const block = c.blocks.find(b => b.id === selection.id)
-        if (block) body = <BlockInspector block={block} dispatch={dispatch} tenantId={tenantId} />
+        if (block) {
+          body = (
+            <BlockInspector
+              block={block}
+              dispatch={dispatch}
+              tenantId={tenantId}
+              device={device}
+              siblings={s.columns.flatMap(col => col.blocks)}
+            />
+          )
+        }
       }
     }
   } else if (selection?.kind === 'section') {

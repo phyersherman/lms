@@ -20,6 +20,9 @@ export interface BlockNode {
   config?: string // JSON string
   order_index?: number
   placement?: GridPlacement // used when the parent section layout is 'grid'
+  // independent phone layout (edited in the editor's mobile view); when absent
+  // the block auto-stacks full-width in desktop order. Tablet uses desktop.
+  placementMobile?: GridPlacement
 }
 
 export interface SectionSettings {
@@ -32,6 +35,45 @@ export interface SectionSettings {
   //         and carry a `placement`
   layout?: 'columns' | 'grid'
   minRows?: number // grid: minimum canvas height in rows
+  overlayOpacity?: number // 0..1 dark overlay over backgroundImageUrl
+  textColor?: string // inherited text color for the section's content
+}
+
+// Section background with optional dark overlay over the image + inherited
+// text color. Shared by the public renderer and the editor shells.
+export const sectionBackgroundStyle = (settings: SectionSettings = {}): { [k: string]: string | undefined } => {
+  const overlay = settings.backgroundImageUrl && settings.overlayOpacity
+    ? `linear-gradient(rgba(0,0,0,${settings.overlayOpacity}), rgba(0,0,0,${settings.overlayOpacity})), `
+    : ''
+  return {
+    backgroundColor: settings.backgroundColor || 'transparent',
+    backgroundImage: settings.backgroundImageUrl ? `${overlay}url(${settings.backgroundImageUrl})` : undefined,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    color: settings.textColor || undefined,
+  }
+}
+
+// Phone layout for a grid section: explicit placementMobile when set,
+// otherwise blocks stack full-width in desktop (y,x) order. Shared by the
+// editor's mobile canvas and the public renderer's generated media CSS.
+export function mobileLayout(blocks: BlockNode[]): Map<string, GridPlacement> {
+  const layout = new Map<string, GridPlacement>()
+  const ordered = [...blocks].sort(
+    (a, b) => (a.placement?.y ?? 0) - (b.placement?.y ?? 0) || (a.placement?.x ?? 0) - (b.placement?.x ?? 0)
+  )
+  // lay out the auto-stacked blocks below any explicitly placed ones
+  let cursor = Math.max(0, ...blocks.map(b => (b.placementMobile ? b.placementMobile.y + b.placementMobile.h : 0)))
+  for (const block of ordered) {
+    if (block.placementMobile) {
+      layout.set(block.id, block.placementMobile)
+    } else {
+      const h = Math.max(block.placement?.h ?? 4, 2)
+      layout.set(block.id, { x: 0, y: cursor, w: GRID_COLUMNS, h })
+      cursor += h + 1
+    }
+  }
+  return layout
 }
 
 export interface PageColumn {

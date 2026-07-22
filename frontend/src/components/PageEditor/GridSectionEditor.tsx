@@ -1,5 +1,5 @@
 import React, { useRef, useState, useCallback } from 'react'
-import { BlockNode, GridPlacement, PageSection, GRID_COLUMNS, GRID_ROW_HEIGHT } from '../blocks/types'
+import { BlockNode, GridPlacement, PageSection, GRID_COLUMNS, GRID_ROW_HEIGHT, mobileLayout } from '../blocks/types'
 import { FrameBox } from '../blocks/frame'
 import { BLOCK_REGISTRY, BlockRenderContext } from '../blocks/registry'
 import BlockInner from './BlockInner'
@@ -12,6 +12,9 @@ interface Props {
   context: BlockRenderContext
   dispatch: DraftDispatch
   contentSnapshot: () => any // current PageContent (for undo snapshots)
+  // 'mobile' edits the independent phone layout (placementMobile); desktop
+  // (and tablet, which mirrors it) edits the main placement
+  device?: 'desktop' | 'mobile'
 }
 
 type DragMode =
@@ -37,16 +40,22 @@ const isEditableTarget = (el: EventTarget | null) =>
 // Freeform canvas: blocks positioned on a 24-column grid, moved by dragging
 // anywhere on the block and resized from edge/corner handles, snapping to
 // grid cells. Mirrors the public GridSectionBody rendering exactly.
-const GridSectionEditor: React.FC<Props> = ({ section, selection, context, dispatch, contentSnapshot }) => {
+const GridSectionEditor: React.FC<Props> = ({ section, selection, context, dispatch, contentSnapshot, device = 'desktop' }) => {
   const canvasRef = useRef<HTMLDivElement>(null)
   const dragRef = useRef<DragState | null>(null)
   const [dragging, setDragging] = useState(false)
 
   const blocks = section.columns.flatMap(c => c.blocks)
   const settings = section.settings || {}
+  const mobile = device === 'mobile' ? mobileLayout(blocks) : null
+  const placementOf = (b: BlockNode): GridPlacement =>
+    mobile ? mobile.get(b.id)! : b.placement || { x: 0, y: 0, w: GRID_COLUMNS, h: 2 }
   const maxRow = Math.max(
-    settings.minRows || 6,
-    ...blocks.map(b => (b.placement ? b.placement.y + b.placement.h : 1))
+    mobile ? 4 : settings.minRows || 6,
+    ...blocks.map(b => {
+      const p = placementOf(b)
+      return p.y + p.h
+    })
   )
 
   const cellSize = useCallback(() => {
@@ -91,9 +100,9 @@ const GridSectionEditor: React.FC<Props> = ({ section, selection, context, dispa
         }
         next = { x, y, w, h }
       }
-      dispatch({ type: 'SET_BLOCK_PLACEMENT', blockId: drag.blockId, placement: next, transient: true })
+      dispatch({ type: 'SET_BLOCK_PLACEMENT', blockId: drag.blockId, placement: next, device, transient: true })
     },
-    [cellSize, dispatch]
+    [cellSize, dispatch, device]
   )
 
   const endDrag = useCallback(() => {
@@ -122,7 +131,7 @@ const GridSectionEditor: React.FC<Props> = ({ section, selection, context, dispa
       mode,
       startX: e.clientX,
       startY: e.clientY,
-      origin: block.placement || { x: 0, y: 0, w: GRID_COLUMNS, h: 2 },
+      origin: placementOf(block),
       before: JSON.parse(JSON.stringify(contentSnapshot())),
       moved: false,
     }
@@ -143,7 +152,7 @@ const GridSectionEditor: React.FC<Props> = ({ section, selection, context, dispa
       }}
     >
       {blocks.map((block, i) => {
-        const p = block.placement || { x: 0, y: 0, w: GRID_COLUMNS, h: 2 }
+        const p = placementOf(block)
         const selected = selection?.kind === 'block' && selection.id === block.id
         const def = BLOCK_REGISTRY[block.type]
         return (

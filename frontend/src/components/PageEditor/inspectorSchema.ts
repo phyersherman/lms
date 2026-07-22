@@ -97,6 +97,7 @@ export const BLOCK_INSPECTORS: Record<string, BlockInspectorSchema> = {
       },
       { key: 'backgroundColor', label: 'Background color', input: 'color' },
       { key: 'textColor', label: 'Text color', input: 'color' },
+      { key: 'outline', label: 'Outline style (transparent fill)', input: 'checkbox' },
       { key: 'openInNewTab', label: 'Open in new tab', input: 'checkbox' },
     ],
   },

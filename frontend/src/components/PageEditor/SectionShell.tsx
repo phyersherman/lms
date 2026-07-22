@@ -2,7 +2,7 @@ import React from 'react'
 import { useSortable, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { useDroppable } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
-import { PageSection } from '../blocks/types'
+import { PageSection, sectionBackgroundStyle } from '../blocks/types'
 import { BlockRenderContext } from '../blocks/registry'
 import BlockShell from './BlockShell'
 import GridSectionEditor from './GridSectionEditor'
@@ -31,9 +31,10 @@ interface Props {
   context: BlockRenderContext
   dispatch: DraftDispatch
   contentSnapshot?: () => any
+  device?: 'desktop' | 'mobile'
 }
 
-const SectionShell: React.FC<Props> = ({ section, selection, context, dispatch, contentSnapshot }) => {
+const SectionShell: React.FC<Props> = ({ section, selection, context, dispatch, contentSnapshot, device }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: section.id,
     data: { type: 'section' },
@@ -79,10 +80,7 @@ const SectionShell: React.FC<Props> = ({ section, selection, context, dispatch, 
 
       <div
         style={{
-          backgroundColor: settings.backgroundColor || 'transparent',
-          backgroundImage: settings.backgroundImageUrl ? `url(${settings.backgroundImageUrl})` : undefined,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
+          ...sectionBackgroundStyle(settings),
           padding: SECTION_PADDING[settings.paddingY || 'medium'],
         }}
       >
@@ -105,6 +103,7 @@ const SectionShell: React.FC<Props> = ({ section, selection, context, dispatch, 
                 context={context}
                 dispatch={dispatch}
                 contentSnapshot={contentSnapshot || (() => null)}
+                device={device}
               />
               <div onClick={e => e.stopPropagation()} style={{ marginTop: 8 }}>
                 <AddBlockMenu

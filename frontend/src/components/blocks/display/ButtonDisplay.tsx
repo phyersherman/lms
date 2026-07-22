@@ -11,6 +11,7 @@ export interface ButtonConfig {
   textColor?: string
   size?: 'small' | 'medium' | 'large'
   openInNewTab?: boolean
+  outline?: boolean // border style (transparent fill), e.g. secondary hero CTAs
 }
 
 export const DEFAULT_BUTTON_CONFIG: ButtonConfig = {
@@ -37,8 +38,9 @@ const ButtonDisplay: React.FC<{ block: BlockNode; editable?: EditableProps }> = 
     width: fillW ? '100%' : undefined,
     height: fillH ? '100%' : undefined,
     boxSizing: 'border-box',
-    backgroundColor: config.backgroundColor,
+    backgroundColor: config.outline ? 'transparent' : config.backgroundColor,
     color: config.textColor,
+    border: config.outline ? `2px solid ${config.textColor || 'currentColor'}` : undefined,
     padding: fillW && fillH ? '4px 12px' : SIZE_PADDING[size],
     fontSize: SIZE_FONT[size],
     borderRadius: 6,

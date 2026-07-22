@@ -89,7 +89,8 @@ type Action =
   | { type: 'SELECT'; selection: Selection }
   | { type: 'ADD_SECTION'; afterSectionId?: string; columns?: number; layout?: 'columns' | 'grid' }
   | { type: 'SET_SECTION_LAYOUT'; sectionId: string; layout: 'columns' | 'grid' }
-  | { type: 'SET_BLOCK_PLACEMENT'; blockId: string; placement: GridPlacement; transient?: boolean }
+  | { type: 'SET_BLOCK_PLACEMENT'; blockId: string; placement: GridPlacement; device?: 'desktop' | 'mobile'; transient?: boolean }
+  | { type: 'EXPLODE_HERO'; blockId: string }
   | { type: 'COMMIT_SNAPSHOT'; before: PageContent }
   | { type: 'DELETE_SECTION'; sectionId: string }
   | { type: 'MOVE_SECTION'; sectionId: string; direction: -1 | 1 }
@@ -166,11 +167,88 @@ function reducer(state: DraftState, action: Action): DraftState {
     }
 
     case 'SET_BLOCK_PLACEMENT': {
+      const key = action.device === 'mobile' ? 'placementMobile' : 'placement'
       const content = mapBlocks(state.content, b =>
-        b.id === action.blockId ? { ...b, placement: action.placement } : b
+        b.id === action.blockId ? { ...b, [key]: action.placement } : b
       )
       if (action.transient) return { ...state, content, dirty: true }
       return withHistory(state, content)
+    }
+
+    // Replace a hero block with individually placeable blocks (kicker, heading,
+    // subheading, buttons) and move its visual styling onto the section, so
+    // every element can be dragged/resized like anything else on the grid.
+    case 'EXPLODE_HERO': {
+      let done = false
+      const sections = state.content.sections.map(section => {
+        const column = section.columns.find(c => c.blocks.some(b => b.id === action.blockId))
+        if (!column || done) return section
+        const hero = column.blocks.find(b => b.id === action.blockId)!
+        if (hero.type !== 'hero') return section
+        done = true
+        let config: any = {}
+        try {
+          config = hero.config ? JSON.parse(hero.config) : {}
+        } catch { /* keep defaults */ }
+        const p = hero.placement || { x: 0, y: 0, w: GRID_COLUMNS, h: 14 }
+        const align = config.alignment || 'center'
+        const textAlign = `text-align:${align}`
+        const color = config.textColor || '#ffffff'
+
+        const pieces: BlockNode[] = []
+        let y = p.y + 1
+        const uid2 = () => `block-${uid()}`
+        if (config.kicker) {
+          pieces.push({ id: uid2(), type: 'text', content: `<p style="${textAlign};font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;opacity:0.85;margin:0">${config.kicker}</p>`, config: '{}', placement: { x: p.x + 2, y, w: p.w - 4, h: 2 } })
+          y += 2
+        }
+        pieces.push({ id: uid2(), type: 'text', content: `<h1 style="${textAlign};margin:0">${hero.content || 'Heading'}</h1>`, config: '{}', placement: { x: p.x + 2, y, w: p.w - 4, h: 3 } })
+        y += 3
+        if (config.subheading) {
+          pieces.push({ id: uid2(), type: 'text', content: `<p style="${textAlign};font-size:19px;line-height:1.5;opacity:0.92;margin:0">${config.subheading}</p>`, config: '{}', placement: { x: p.x + 2, y, w: p.w - 4, h: 3 } })
+          y += 3
+        }
+        const buttons: any[] = config.buttons || []
+        if (buttons.length) {
+          y += 1
+          const bw = 6
+          const gap = 1
+          const total = buttons.length * bw + (buttons.length - 1) * gap
+          let bx = align === 'left' ? p.x + 2 : Math.max(p.x, p.x + Math.round((p.w - total) / 2))
+          for (const b of buttons) {
+            pieces.push({
+              id: uid2(),
+              type: 'button',
+              content: b.label || 'Button',
+              config: JSON.stringify(
+                b.variant === 'outline'
+                  ? { url: b.url || '#', outline: true, textColor: color, backgroundColor: 'transparent', alignment: 'center' }
+                  : { url: b.url || '#', backgroundColor: 'var(--color-primary)', textColor: '#ffffff', alignment: 'center' }
+              ),
+              placement: { x: Math.min(bx, p.x + p.w - bw), y, w: bw, h: 2 },
+            })
+            bx += bw + gap
+          }
+        }
+
+        return {
+          ...section,
+          settings: {
+            ...section.settings,
+            backgroundColor: config.backgroundColor || section.settings?.backgroundColor,
+            backgroundImageUrl: config.backgroundImageUrl || section.settings?.backgroundImageUrl,
+            overlayOpacity: config.backgroundImageUrl ? config.overlayOpacity ?? 0.45 : section.settings?.overlayOpacity,
+            textColor: color,
+          },
+          columns: section.columns.map(c =>
+            c.id === column.id
+              ? { ...c, blocks: c.blocks.flatMap(b => (b.id === action.blockId ? pieces : [b])) }
+              : c
+          ),
+        }
+      })
+      if (!done) return state
+      return withHistory(state, { sections }, { selection: null })
     }
 
     case 'COMMIT_SNAPSHOT':

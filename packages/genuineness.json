@@ -333,23 +333,77 @@
           {
             "settings": {
               "layout": "grid",
-              "paddingY": "none",
-              "minRows": 17,
-              "fullWidth": true
+              "paddingY": "medium",
+              "minRows": 16,
+              "fullWidth": true,
+              "backgroundColor": "#1e293b",
+              "textColor": "#ffffff"
             },
             "columns": [
               {
                 "widthFraction": 1,
                 "blocks": [
                   {
-                    "type": "hero",
-                    "content": "The Genuine Board Leader",
-                    "config": "{\"kicker\":\"A forthcoming book by Jim Hayden · Coming Fall 2026\",\"subheading\":\"How to Create Genuineness in Your Ability to Lead\",\"alignment\":\"center\",\"backgroundColor\":\"#1e293b\",\"textColor\":\"#ffffff\",\"buttons\":[{\"label\":\"Watch the Ten-Minute Preview\",\"url\":\"/preview\",\"variant\":\"solid\"},{\"label\":\"Download the Free White Paper\",\"url\":\"/white-paper\",\"variant\":\"outline\"},{\"label\":\"Pre-Order Your Signed Copy\",\"url\":\"/pre-order\",\"variant\":\"outline\"}]}",
+                    "type": "text",
+                    "content": "<p style=\"text-align:center;font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;opacity:0.85;margin:0\">A forthcoming book by Jim Hayden · Coming Fall 2026</p>",
                     "placement": {
-                      "x": 0,
-                      "y": 0,
-                      "w": 24,
-                      "h": 17
+                      "x": 3,
+                      "y": 2,
+                      "w": 18,
+                      "h": 2
+                    }
+                  },
+                  {
+                    "type": "text",
+                    "content": "<h1 style=\"text-align:center;font-size:46px;margin:0\">The Genuine Board Leader</h1>",
+                    "placement": {
+                      "x": 2,
+                      "y": 5,
+                      "w": 20,
+                      "h": 3
+                    }
+                  },
+                  {
+                    "type": "text",
+                    "content": "<p style=\"text-align:center;font-size:20px;opacity:0.92;margin:0\">How to Create Genuineness in Your Ability to Lead</p>",
+                    "placement": {
+                      "x": 4,
+                      "y": 9,
+                      "w": 16,
+                      "h": 2
+                    }
+                  },
+                  {
+                    "type": "button",
+                    "content": "Watch the Ten-Minute Preview",
+                    "config": "{\"url\":\"/preview\",\"backgroundColor\":\"#b45309\",\"textColor\":\"#ffffff\",\"size\":\"medium\",\"alignment\":\"center\"}",
+                    "placement": {
+                      "x": 2,
+                      "y": 12,
+                      "w": 6,
+                      "h": 2
+                    }
+                  },
+                  {
+                    "type": "button",
+                    "content": "Download the Free White Paper",
+                    "config": "{\"url\":\"/white-paper\",\"backgroundColor\":\"transparent\",\"textColor\":\"#ffffff\",\"size\":\"medium\",\"alignment\":\"center\",\"outline\":true}",
+                    "placement": {
+                      "x": 9,
+                      "y": 12,
+                      "w": 6,
+                      "h": 2
+                    }
+                  },
+                  {
+                    "type": "button",
+                    "content": "Pre-Order Your Signed Copy",
+                    "config": "{\"url\":\"/pre-order\",\"backgroundColor\":\"transparent\",\"textColor\":\"#ffffff\",\"size\":\"medium\",\"alignment\":\"center\",\"outline\":true}",
+                    "placement": {
+                      "x": 16,
+                      "y": 12,
+                      "w": 6,
+                      "h": 2
                     }
                   }
                 ]
@@ -743,23 +797,56 @@
           {
             "settings": {
               "layout": "grid",
-              "paddingY": "none",
-              "minRows": 11,
-              "fullWidth": true
+              "paddingY": "medium",
+              "minRows": 10,
+              "fullWidth": true,
+              "backgroundColor": "#1e293b",
+              "textColor": "#ffffff"
             },
             "columns": [
               {
                 "widthFraction": 1,
                 "blocks": [
                   {
-                    "type": "hero",
-                    "content": "Ready to lead genuinely?",
-                    "config": "{\"subheading\":\"Reserve a personally signed copy of The Genuine Board Leader.\",\"alignment\":\"center\",\"backgroundColor\":\"#1e293b\",\"textColor\":\"#ffffff\",\"buttons\":[{\"label\":\"Pre-Order Your Signed Copy\",\"url\":\"/pre-order\",\"variant\":\"solid\"},{\"label\":\"Download Free White Paper\",\"url\":\"/white-paper\",\"variant\":\"outline\"}]}",
+                    "type": "text",
+                    "content": "<h2 style=\"text-align:center;font-size:34px;margin:0\">Ready to lead genuinely?</h2>",
                     "placement": {
-                      "x": 0,
-                      "y": 0,
-                      "w": 24,
-                      "h": 11
+                      "x": 2,
+                      "y": 1,
+                      "w": 20,
+                      "h": 3
+                    }
+                  },
+                  {
+                    "type": "text",
+                    "content": "<p style=\"text-align:center;font-size:18px;opacity:0.92;margin:0\">Reserve a personally signed copy of The Genuine Board Leader.</p>",
+                    "placement": {
+                      "x": 4,
+                      "y": 4,
+                      "w": 16,
+                      "h": 2
+                    }
+                  },
+                  {
+                    "type": "button",
+                    "content": "Pre-Order Your Signed Copy",
+                    "config": "{\"url\":\"/pre-order\",\"backgroundColor\":\"#b45309\",\"textColor\":\"#ffffff\",\"size\":\"medium\",\"alignment\":\"center\"}",
+                    "placement": {
+                      "x": 5,
+                      "y": 7,
+                      "w": 7,
+                      "h": 2
+                    }
+                  },
+                  {
+                    "type": "button",
+                    "content": "Download Free White Paper",
+                    "config": "{\"url\":\"/white-paper\",\"backgroundColor\":\"transparent\",\"textColor\":\"#ffffff\",\"size\":\"medium\",\"alignment\":\"center\",\"outline\":true}",
+                    "placement": {
+                      "x": 13,
+                      "y": 7,
+                      "w": 7,
+                      "h": 2
                     }
                   }
                 ]
@@ -976,23 +1063,34 @@
           {
             "settings": {
               "layout": "grid",
-              "paddingY": "none",
-              "minRows": 12,
-              "fullWidth": true
+              "paddingY": "medium",
+              "minRows": 11,
+              "fullWidth": true,
+              "backgroundColor": "#1e293b",
+              "textColor": "#ffffff"
             },
             "columns": [
               {
                 "widthFraction": 1,
                 "blocks": [
                   {
-                    "type": "hero",
-                    "content": "Pre-Order Your Signed Copy",
-                    "config": "{\"subheading\":\"The Genuine Board Leader arrives Fall 2026. Pre-order today and receive a personally signed and inscribed copy from Jim Hayden, customized with whatever message matters most to you — or the person you’re gifting it to.\",\"alignment\":\"center\",\"backgroundColor\":\"#1e293b\",\"textColor\":\"#ffffff\"}",
+                    "type": "text",
+                    "content": "<h1 style=\"text-align:center;font-size:40px;margin:0\">Pre-Order Your Signed Copy</h1>",
                     "placement": {
-                      "x": 0,
-                      "y": 0,
-                      "w": 24,
-                      "h": 12
+                      "x": 2,
+                      "y": 1,
+                      "w": 20,
+                      "h": 3
+                    }
+                  },
+                  {
+                    "type": "text",
+                    "content": "<p style=\"text-align:center;font-size:18px;line-height:1.6;opacity:0.92;margin:0\">The Genuine Board Leader arrives Fall 2026. Pre-order today and receive a personally signed and inscribed copy from Jim Hayden, customized with whatever message matters most to you — or the person you’re gifting it to.</p>",
+                    "placement": {
+                      "x": 3,
+                      "y": 5,
+                      "w": 18,
+                      "h": 5
                     }
                   }
                 ]

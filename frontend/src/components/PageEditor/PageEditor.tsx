@@ -157,11 +157,12 @@ const PageEditor: React.FC<Props> = ({ initialContent, onSaveDraft, onPublish, h
               type="button"
               className={device === m ? styles.deviceActive : ''}
               onClick={() => setDevice(m)}
-              title={m}
+              title={m === 'mobile' ? 'Mobile — edits a separate phone layout' : m === 'tablet' ? 'Tablet (uses the desktop layout)' : 'Desktop'}
             >
               {m === 'desktop' ? '🖥' : m === 'tablet' ? '📱' : '📲'}
             </button>
           ))}
+          {device === 'mobile' && <span style={{ fontSize: 11, color: '#5eead4', alignSelf: 'center', padding: '0 6px' }}>editing phone layout</span>}
         </div>
 
         <div className={styles.topbarRight}>
@@ -199,6 +200,7 @@ const PageEditor: React.FC<Props> = ({ initialContent, onSaveDraft, onPublish, h
                     context={{ surface: 'site' }}
                     dispatch={dispatch}
                     contentSnapshot={() => contentRef.current}
+                    device={device === 'mobile' ? 'mobile' : 'desktop'}
                   />
                 ))}
               </SortableContext>
@@ -211,7 +213,13 @@ const PageEditor: React.FC<Props> = ({ initialContent, onSaveDraft, onPublish, h
           </div>
         </div>
 
-        <Inspector content={state.content} selection={state.selection} dispatch={dispatch} tenantId={tenantId} />
+        <Inspector
+          content={state.content}
+          selection={state.selection}
+          dispatch={dispatch}
+          tenantId={tenantId}
+          device={device === 'mobile' ? 'mobile' : 'desktop'}
+        />
       </div>
     </div>
   )

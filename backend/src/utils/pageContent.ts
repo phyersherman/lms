@@ -7,6 +7,7 @@ export interface PageBlockNode {
   content?: string
   config?: string // JSON string, same shape as LMS Block.config
   placement?: { x: number; y: number; w: number; h: number } // grid sections only
+  placementMobile?: { x: number; y: number; w: number; h: number } // independent phone layout
 }
 
 export interface PageColumn {
@@ -24,6 +25,8 @@ export interface PageSection {
     fullWidth?: boolean
     layout?: 'columns' | 'grid' // grid = freeform placement (blocks carry `placement`)
     minRows?: number
+    overlayOpacity?: number
+    textColor?: string
   }
   columns: PageColumn[]
 }
