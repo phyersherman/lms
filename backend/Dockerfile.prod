@@ -60,4 +60,6 @@ EXPOSE 4000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
   CMD wget --spider -q http://localhost:4000/api/health || exit 1
 
-CMD ["node", "dist/index.js"]
+# Apply any pending migrations before starting (idempotent; safety net so the
+# schema can never lag the code even if a deploy skips the migrate step)
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/index.js"]

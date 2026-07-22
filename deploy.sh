@@ -102,33 +102,14 @@ for i in $(seq 1 30); do
     sleep 2
 done
 
-# Run database migrations
+# Run database migrations using the NEWLY PULLED image in a one-off container.
+# (Never `exec` into the running backend here — during an update that container
+# is still the OLD image and only knows about the old migrations, so new
+# migrations would be silently skipped.)
 info "Running database migrations..."
-$COMPOSE_CMD exec -T backend npm run migrate:deploy 2>/dev/null || {
-    info "Backend not running yet, starting it first..."
-    $COMPOSE_CMD up -d backend
-    
-    # Wait for backend container to be ready
-    info "Waiting for backend to be ready..."
-    sleep 10
-    for i in $(seq 1 30); do
-        if $COMPOSE_CMD exec -T backend sh -c "command -v npm" >/dev/null 2>&1; then
-            info "Backend is ready"
-            break
-        fi
-        if [ $i -eq 30 ]; then
-            error "Backend failed to start"
-            exit 1
-        fi
-        echo -n "."
-        sleep 2
-    done
-    
-    $COMPOSE_CMD exec -T backend npm run migrate:deploy || {
-        error "Database migration failed!"
-        $COMPOSE_CMD logs backend
-        exit 1
-    }
+$COMPOSE_CMD run --rm --no-deps backend npm run migrate:deploy || {
+    error "Database migration failed!"
+    exit 1
 }
 
 # Store current container IDs for rollback
