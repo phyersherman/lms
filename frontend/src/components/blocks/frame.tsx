@@ -66,18 +66,20 @@ export const FitText: React.FC<{ children: React.ReactNode }> = ({ children }) =
     if (!outer || !inner) return
 
     const fit = () => {
-      const availW = outer.clientWidth
       const availH = outer.clientHeight
-      if (!availW || !availH) return
+      if (!availH) return
+      // Fit by HEIGHT and let the width take care of itself: text always
+      // spans the container width, and zooming reflows the wrapping, so we
+      // iterate zoom until the (visual) content height matches the box.
+      let zoom = 1
       ;(inner.style as any).zoom = '1'
-      // iterate: zoom changes wrapping, so converge over a few passes
-      for (let i = 0; i < 3; i++) {
-        const rect = inner.getBoundingClientRect()
-        if (!rect.width || !rect.height) break
-        const current = parseFloat((inner.style as any).zoom || '1')
-        const next = Math.max(0.2, Math.min(current * Math.min(availW / rect.width, availH / rect.height), 10))
-        if (Math.abs(next - current) < 0.01) break
-        ;(inner.style as any).zoom = String(next)
+      for (let i = 0; i < 6; i++) {
+        const rectH = inner.getBoundingClientRect().height
+        if (!rectH) break
+        const next = Math.max(0.2, Math.min(zoom * (availH / rectH), 10))
+        if (Math.abs(next - zoom) < 0.02) break
+        zoom = next
+        ;(inner.style as any).zoom = String(zoom)
       }
     }
 

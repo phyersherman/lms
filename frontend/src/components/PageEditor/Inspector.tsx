@@ -286,14 +286,21 @@ const BlockInspector: React.FC<{ block: BlockNode; dispatch: DraftDispatch; tena
               onChange={v => patchFrame({ padding: Number(v) || 0 })}
             />
             {block.type === 'text' && (
-              <label className={styles.inspectorCheckbox}>
-                <input
-                  type="checkbox"
-                  checked={!!frame.fillText}
-                  onChange={e => patchFrame({ fillText: e.target.checked, ...(e.target.checked ? { vAlign: 'stretch', hAlign: 'stretch' } : {}) })}
-                />
-                Scale text to fill the box
-              </label>
+              <>
+                <label className={styles.inspectorCheckbox}>
+                  <input
+                    type="checkbox"
+                    checked={!!frame.fillText}
+                    onChange={e => patchFrame({ fillText: e.target.checked, ...(e.target.checked ? { vAlign: 'stretch', hAlign: 'stretch' } : {}) })}
+                  />
+                  Scale text to fill the box
+                </label>
+                {frame.fillText && (
+                  <p className={styles.fieldHelp} style={{ marginTop: -6 }}>
+                    The fitted size shows while the block isn&apos;t being edited — click elsewhere to see it.
+                  </p>
+                )}
+              </>
             )}
             {block.type === 'image' && frame.hAlign === 'stretch' && frame.vAlign === 'stretch' && (
               <Field
